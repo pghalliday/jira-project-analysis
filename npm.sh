@@ -1,2 +1,2 @@
 #!/bin/bash
-fig run tasks npm $*
+fig run web npm $*

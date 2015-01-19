@@ -1,4 +1,4 @@
-jira-time-series:
+web:
   build: .
   command: npm start
   ports: 
@@ -7,5 +7,5 @@ jira-time-series:
     - .:/code
   links:
     - redis
-mongo:
+redis:
   image: redis:2.8.19
