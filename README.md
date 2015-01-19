@@ -1,4 +1,4 @@
-tasks
-=====
+jira-time-series
+================
 
-Personal task management
+Capturing and querying JIRA time series data

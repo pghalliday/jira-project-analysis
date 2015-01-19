@@ -1,4 +1,4 @@
-tasks:
+jira-time-series:
   build: .
   command: npm start
   ports: 
@@ -6,6 +6,6 @@ tasks:
   volumes:
     - .:/code
   links:
-    - mongo
+    - redis
 mongo:
-  image: mongo:2.6.7
+  image: redis:2.8.19
