@@ -9,9 +9,9 @@ gulpUtil = require 'gulp-util'
 del = require 'del'
 nodemon = require 'gulp-nodemon'
 
-serverSrc = './src/server/**/*.coffee'
-clientCoffeeSrc = './src/client/cjsx/**/*.cjsx'
-clientHtmlSrc = './src/client/**/*.html'
+serverSrc = 'src/server/**/*.coffee'
+clientCoffeeSrc = 'src/client/cjsx/**/*.cjsx'
+clientHtmlSrc = 'src/client/**/*.html'
 
 src = [
   serverSrc
@@ -25,7 +25,7 @@ gulp.task 'development', ['build'], ->
   gulp.watch src, ['build']
   nodemon
     script: script
-    watch: './build/server/'
+    watch: 'build/server/'
     ext: 'js'
 
 gulp.task 'start', ['build'], ->
