@@ -1,0 +1,10 @@
+{
+  "collectCoverage": true,
+  "scriptPreprocessor": "<rootDir>/test/jest/server/preprocessor.js",
+  "testPathDirs": [
+    "<rootDir>/test/src/server"
+  ],
+  "testFileExtensions": [
+    "coffee"
+  ]
+}

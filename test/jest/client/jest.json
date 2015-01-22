@@ -1,0 +1,12 @@
+{
+  "collectCoverage": true,
+  "rootDir": ".",
+  "scriptPreprocessor": "<rootDir>/test/jest/client/preprocessor.js",
+  "testDirectoryName": "<rootDir>/test/src/client",
+  "unmockedModulePathPatterns": [
+    "<rootDir>/node_modules/react"
+  ],
+  "testFileExtensions": [
+    "cjsx"
+  ]
+}
