@@ -1,0 +1,10 @@
+{
+  "collectCoverage": true,
+  "scriptPreprocessor": "<rootDir>/test/server/preprocessor.js",
+  "testPathDirs": [
+    "<rootDir>/test/server"
+  ],
+  "testFileExtensions": [
+    "coffee"
+  ]
+}
