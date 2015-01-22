@@ -33,9 +33,9 @@ script = './build/server/index.js'
 
 gulp.task 'test', ['test:server', 'test:client']
 
-gulp.task 'test:server', ['lint:server'], shell.task 'jest --config=test/client/jest.json'
+gulp.task 'test:server', ['lint:server'], shell.task 'jest -c test/client/jest.json'
 
-gulp.task 'test:client', ['lint:client'], shell.task 'jest --config=test/server/jest.json'
+gulp.task 'test:client', ['lint:client'], shell.task 'jest -c test/server/jest.json'
 
 gulp.task 'lint', ['lint:server', 'lint:client']
 
