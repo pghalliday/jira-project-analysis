@@ -5,6 +5,9 @@ buffer = require 'vinyl-buffer'
 sourcemaps = require 'gulp-sourcemaps'
 uglify = require 'gulp-uglify'
 coffee = require 'gulp-coffee'
+coffeelint = require 'gulp-coffeelint'
+coffeeReactTransform = require 'gulp-coffee-react-transform'
+mocha = require 'gulp-mocha'
 gulpUtil = require 'gulp-util'
 del = require 'del'
 nodemon = require 'gulp-nodemon'
@@ -19,7 +22,38 @@ src = [
   clientHtmlSrc
 ]
 
+serverTestSrc = 'test/src/server/**/*.coffee'
+
+testSrc = [
+  serverTestSrc
+]
+
 script = './build/server/index.js'
+
+gulp.task 'test', ['test:server', 'test:client']
+
+gulp.task 'test:server', ['lint:server'], ->
+  gulp.src(serverTestSrc)
+    .pipe(mocha(
+      reporter: 'spec'
+    ))
+
+gulp.task 'test:client', ['lint:client'], ->
+
+gulp.task 'lint', ['lint:server', 'lint:client']
+
+gulp.task 'lint:server', ->
+  gulp.src(serverSrc)
+    .pipe(coffeelint('coffeelint-server.json'))
+    .pipe(coffeelint.reporter())
+    .pipe(coffeelint.reporter('failOnWarning'))
+
+gulp.task 'lint:client', ->
+  gulp.src(clientCoffeeSrc)
+    .pipe(coffeeReactTransform())
+    .pipe(coffeelint('coffeelint-client.json'))
+    .pipe(coffeelint.reporter())
+    .pipe(coffeelint.reporter('failOnWarning'))
 
 gulp.task 'development', ['build'], ->
   gulp.watch src, ['build']
