@@ -6,7 +6,6 @@ sourcemaps = require 'gulp-sourcemaps'
 uglify = require 'gulp-uglify'
 coffee = require 'gulp-coffee'
 coffeelint = require 'gulp-coffeelint'
-coffeeReactTransform = require 'gulp-coffee-react-transform'
 shell = require 'gulp-shell'
 gulpUtil = require 'gulp-util'
 del = require 'del'
@@ -40,14 +39,13 @@ gulp.task 'lint', ['lint:server', 'lint:client']
 
 gulp.task 'lint:server', ->
   gulp.src(serverSrc)
-    .pipe(coffeelint('coffeelint-server.json'))
+    .pipe(coffeelint('test/server/coffeelint.json'))
     .pipe(coffeelint.reporter())
     .pipe(coffeelint.reporter('failOnWarning'))
 
 gulp.task 'lint:client', ->
   gulp.src(clientCoffeeSrc)
-    .pipe(coffeeReactTransform())
-    .pipe(coffeelint('coffeelint-client.json'))
+    .pipe(coffeelint('test/client/coffeelint.json'))
     .pipe(coffeelint.reporter())
     .pipe(coffeelint.reporter('failOnWarning'))
 
