@@ -7,7 +7,6 @@ uglify = require 'gulp-uglify'
 coffee = require 'gulp-coffee'
 coffeelint = require 'gulp-coffeelint'
 coffeeReactTransform = require 'gulp-coffee-react-transform'
-mocha = require 'gulp-mocha'
 shell = require 'gulp-shell'
 gulpUtil = require 'gulp-util'
 del = require 'del'
@@ -33,9 +32,9 @@ script = './build/server/index.js'
 
 gulp.task 'test', ['test:server', 'test:client']
 
-gulp.task 'test:server', ['lint:server'], shell.task 'jest -c test/client/jest.json'
+gulp.task 'test:server', ['lint:server'], shell.task 'jest -c test/server/jest.json'
 
-gulp.task 'test:client', ['lint:client'], shell.task 'jest -c test/server/jest.json'
+gulp.task 'test:client', ['lint:client'], shell.task 'jest -c test/client/jest.json'
 
 gulp.task 'lint', ['lint:server', 'lint:client']
 

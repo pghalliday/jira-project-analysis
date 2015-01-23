@@ -1,9 +1,9 @@
-var transform = require('coffee-react-transform');
+var cjsx = require('coffee-react');
 
 module.exports = {
   process: function(src, path) {
     if (path.match(/\.cjsx$/)) {
-      return transform(src);
+      return cjsx.compile(src, {'bare': true});
     }
     return src;
   }

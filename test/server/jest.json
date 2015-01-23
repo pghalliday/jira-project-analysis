@@ -1,8 +1,9 @@
 {
   "collectCoverage": true,
-  "scriptPreprocessor": "<rootDir>/test/server/preprocessor.js",
+  "setupTestFrameworkScriptFile": "./setup.js",
+  "scriptPreprocessor": "./preprocessor.js",
   "testPathDirs": [
-    "<rootDir>/test/server"
+    "."
   ],
   "testFileExtensions": [
     "coffee"

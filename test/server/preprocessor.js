@@ -1,4 +1,4 @@
-var coffee = require('coffeescript');
+var coffee = require('coffee-script');
 
 module.exports = {
   process: function(src, path) {

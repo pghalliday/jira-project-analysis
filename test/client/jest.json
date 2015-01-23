@@ -1,11 +1,12 @@
 {
   "collectCoverage": true,
-  "scriptPreprocessor": "<rootDir>/test/client/preprocessor.js",
-  "testPathDirs": [
-    "<rootDir>/test/client"
-  ],
+  "setupTestFrameworkScriptFile": "./setup.js",
+  "scriptPreprocessor": "./preprocessor.js",
   "unmockedModulePathPatterns": [
-    "<rootDir>/node_modules/react"
+    "../../node_modules/react"
+  ],
+  "testPathDirs": [
+    "."
   ],
   "testFileExtensions": [
     "cjsx"
