@@ -21,19 +21,13 @@ src = [
   clientHtmlSrc
 ]
 
-serverTestSrc = 'test/src/server/**/*.coffee'
-
-testSrc = [
-  serverTestSrc
-]
-
 script = './build/server/index.js'
 
 gulp.task 'test', ['test:server', 'test:client']
 
-gulp.task 'test:server', ['lint:server'], shell.task 'jest -c test/server/jest.json'
+gulp.task 'test:server', ['lint:server', 'watch:server'], shell.task 'jest -c test/server/jest.json'
 
-gulp.task 'test:client', ['lint:client'], shell.task 'jest -c test/client/jest.json'
+gulp.task 'test:client', ['lint:client', 'watch:client'], shell.task 'jest -c test/client/jest.json'
 
 gulp.task 'lint', ['lint:server', 'lint:client']
 
@@ -48,6 +42,12 @@ gulp.task 'lint:client', ->
     .pipe(coffeelint('test/client/coffeelint.json'))
     .pipe(coffeelint.reporter())
     .pipe(coffeelint.reporter('failOnWarning'))
+
+gulp.task 'watch:server', ->
+  gulp.watch 'test/server/**/*', ['test:server']
+
+gulp.task 'watch:client', ->
+  gulp.watch 'test/client/**/*', ['test:client']
 
 gulp.task 'development', ['build'], ->
   gulp.watch src, ['build']
