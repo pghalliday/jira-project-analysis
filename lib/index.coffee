@@ -5,12 +5,12 @@ path = require 'path'
 moment = require 'moment'
 stringify = require 'csv-stringify'
 JiraApi = require('jira').JiraApi
-progress = require 'progress'
+Progress = require 'progress'
 _ = require 'underscore'
 
 now = moment()
 
-series = (jira, dates, name, jql) ->
+series = (bar, jira, dates, name, jql) ->
   jql = jql.join ' ' if Array.isArray jql
   query = (date) ->
     jqlWithDate = jql.replace /__DATE__/g, date
@@ -19,6 +19,8 @@ series = (jira, dates, name, jql) ->
         q.ninvoke jira, 'searchJira', jqlWithDate,
           maxResults: 1
       .then (result) ->
+        bar.tick()
+        console.log('\n  queries complete\n') if bar.complete
         entry = {}
         entry[name] = result.total
         entry
@@ -47,20 +49,29 @@ q()
       config.jira.oauth
     )
     dates = (moment(now).subtract(day, 'days').format('YYYY/MM/DD') for day in [(config.days - 1)..0])
+    bar = new Progress '  querying :elapseds [:bar] :percent :etas',
+      total: Object.keys(config.queries).length * config.days
+      complete: '='
+      incomplete: ' '
+      width: 20
     [
       {'date': date} for date in dates
-      q.all (series(jira, dates, name, jql) for name, jql of config.queries)
+      q.all (series(bar, jira, dates, name, jql) for name, jql of config.queries)
       path.resolve outputDir, config.output
     ]
   .spread (dates, data, output) ->
     data.unshift dates
     data = _.zip.apply _, data
     data = (_.extend.apply(_,  entry) for entry in data)
-    console.log data
     [
       output
       q.nfcall stringify, data, { header: true }
     ]
   .spread (output, csv) ->
-    fs.write output, csv
+    [
+      output
+      fs.write output, csv
+    ]
+  .spread (output) ->
+    console.log '  CSV data written to ' + output
   .done()
