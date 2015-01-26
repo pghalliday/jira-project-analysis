@@ -20,7 +20,6 @@ series = (bar, jira, dates, name, jql) ->
           maxResults: 1
       .then (result) ->
         bar.tick()
-        console.log('\n  queries complete\n') if bar.complete
         entry = {}
         entry[name] = result.total
         entry
@@ -54,6 +53,7 @@ q()
       complete: '='
       incomplete: ' '
       width: 20
+    bar.tick 0
     [
       {'date': date} for date in dates
       q.all (series(bar, jira, dates, name, jql) for name, jql of config.queries)
@@ -73,5 +73,5 @@ q()
       fs.write output, csv
     ]
   .spread (output) ->
-    console.log '  CSV data written to ' + output
+    console.log '\n  CSV data written to ' + output + '\n'
   .done()
