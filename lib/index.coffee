@@ -11,6 +11,7 @@ _ = require 'underscore'
 now = moment()
 
 series = (bar, jira, dates, name, jql) ->
+  jql = jql.jql if jql.jql
   jql = jql.join ' ' if Array.isArray jql
   query = (date) ->
     jqlWithDate = jql.replace /__DATE__/g, date
@@ -18,6 +19,7 @@ series = (bar, jira, dates, name, jql) ->
       .then ->
         q.ninvoke jira, 'searchJira', jqlWithDate,
           maxResults: 1
+          fields: []
       .then (result) ->
         bar.tick()
         entry = {}
