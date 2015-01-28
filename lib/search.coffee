@@ -38,8 +38,6 @@ module.exports = (params) ->
       maxResults: maxResults
       startAt: startAt
       fields: params.fields
-  issuesPromise = (query) ->
-    queryPromise query, 'issues.*', [], params.issueAccumulator
   Q()
     .then ->
       query = request queryParams 0, 0
