@@ -43,8 +43,8 @@ module.exports = (params) ->
       query = request queryParams 0, 0
       deferred = Q.defer()
       jsonStream = JSONStream.parse 'total'
-      jsonStream.once 'data', (value) ->
-        deferred.resolve value
+      jsonStream.once 'data', (total) ->
+        deferred.resolve total
       query.pipe jsonStream
       deferred.promise
     .then (total) ->
