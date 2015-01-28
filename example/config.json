@@ -1,22 +1,44 @@
 {
   "output": "./jira-time-series.csv",
-  "days": 60,
-  "queries": {
-    "open": "status was in (\"To Do\", \"In Progress\") on \"__DATE__\"",
-    "open and assigned": [
-      "status was in (\"To Do\", \"In Progress\") on \"__DATE__\" and",
-      "assignee was in (a.user, b.user, c.user) on \"__DATE__\""
+  "days": 90,
+  "project": [
+    "MyProject"
+  ],
+  "exclude": {
+    "types": [
+      "Epic",
+      "Requirement",
+      "Test"
+    ],
+    "statuses": [
+      "Parked",
+      "Trash"
+    ]
+  },
+  "initialStatus": "To Do",
+  "statusMap": {
+    "todo": [
+      "To Do"
+    ],
+    "inProgress": [
+      "In Progress",
+      "Ready for Merging"
+    ],
+    "done": [
+      "Closed",
+      "Resolved",
+      "Done"
     ]
   },
   "jira": {
     "protocol": "https",
     "host": "jira.mydomain.com",
     "port": 443,
-    "username": "myname",
-    "password": "mypassword",
+    "username": "username",
+    "password": "password",
     "apiVersion": "2",
     "verbose": false,
-    "strictSSL": false,
+    "strictSSL": true,
     "oauth": false
   }
 }

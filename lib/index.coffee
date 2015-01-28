@@ -18,8 +18,15 @@ Q()
   .spread (configJSON, outputDir) ->
     config = JSON.parse configJSON
     jira = config.jira
-    jql = config.jql
-    jql = jql.join ' ' if Array.isArray jql
+    jql = 'project = "' + config.project + '"'
+    exclude = config.exclude
+    if exclude
+      types = exclude.types
+      if types
+        jql += (' and issuetype not in (' + _.reduce(types, ((types, type) -> types + (if types.length then ', ' else '') + '"' + type  + '"'), '')  + ')') if types.length
+      statuses = exclude.statuses
+      if statuses
+        jql += (' and status not in (' + _.reduce(statuses, ((statuses, status) -> statuses + (if statuses.length then ', ' else '') + '"' + status  + '"'), '')  + ')') if statuses.length
     bar = undefined
     [path.resolve(outputDir, config.output)].concat(
       search
@@ -38,7 +45,7 @@ Q()
             incomplete: ' '
             width: 20
           bar.tick 0
-        initialState: new State config.days
+        initialState: new State config.days, config.statusMap, config.initialStatus
         stateAccumulator: (state, issue) ->
           state.addIssue issue
           bar.tick()
@@ -50,7 +57,6 @@ Q()
       columns:
         displayDate: 'date'
         open: 'open'
-        openAndAssigned: 'open and assigned'
         leadTime7DayMovingAverage: 'lead time (7 day moving average)'
   .spread (output, csv) ->
     [output].concat fs.write output, csv

@@ -2,21 +2,21 @@ moment = require 'moment'
 _ = require 'underscore'
 
 class Issue
-  constructor: (rawIssue) ->
+  constructor: (rawIssue, resolvedStatuses, initialStatus) ->
     @assignees = []
     @statuses = []
-    @processCreated moment rawIssue.fields.created
+    @processCreated initialStatus, moment rawIssue.fields.created
     @processChange(change) for change in rawIssue.changelog.histories
-    @processClosed(moment rawIssue.fields.resolutiondate) if rawIssue.fields.status.name in ['Done', 'Closed']
+    @processClosed(moment rawIssue.fields.resolutiondate) if rawIssue.fields.status.name in resolvedStatuses
 
-  processCreated: (date) =>
+  processCreated: (initialStatus, date) =>
     @created = date
     @assignees.push
       date: date
       assignee: null
     @statuses.push
       date: date
-      status: 'To Do'
+      status: initialStatus
 
   processChange: (change) =>
     date = moment change.created
@@ -54,10 +54,9 @@ class Issue
     @closed.isBetween(start, date) if @closed
 
 class Day
-  constructor: (@date) ->
+  constructor: (@date, @openStatuses) ->
     @displayDate = @date.format 'YYYY/MM/DD'
     @open = 0
-    @openAndAssigned = 0
     @leadTimes7Day = []
     @leadTime7DayMovingAverage = null
 
@@ -65,18 +64,19 @@ class Day
     if issue.resolvedWithin(@date, 7)
       @leadTimes7Day.push issue.leadTime
       @leadTime7DayMovingAverage = (_.reduce @leadTimes7Day, (total, leadTime) => total + leadTime) / @leadTimes7Day.length
-    if issue.statusOnDate(@date) in ['To Do', 'In Progress', 'Ready For Merging']
+    if issue.statusOnDate(@date) in @openStatuses
       @open++
-      if issue.assigneeOnDate(@date) in ['brendan.meade', 'acampo', 'rnieuwboer', 'ajunqueira', 'alarocca']
-        @openAndAssigned++
 
 class State
-  constructor: (days) ->
+  constructor: (days, @statusMap) ->
+    @statuses = @statusMap.todo.concat @statusMap.inProgress, @statusMap.done
     now = moment()
-    @days = (new Day(moment(now).subtract(day, 'days')) for day in [(days - 1)..0])
+    @days = (new Day(moment(now).subtract(day, 'days'), @statusMap.todo.concat @statusMap.inProgress) for day in [(days - 1)..0])
 
   addIssue: (rawIssue) =>
-    issue  = new Issue rawIssue
+    status = rawIssue.fields.status.name
+    console.log 'WARNING: status not mapped: ' + status if status not in @statuses
+    issue  = new Issue rawIssue, @statusMap.done, @initialStatus
     day.addIssue(issue) for day in @days
 
 module.exports = State
