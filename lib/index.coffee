@@ -1,35 +1,14 @@
-q = require 'q'
+Q = require 'q'
 fs = require 'q-io/fs'
 fscore = require 'fs'
 path = require 'path'
-moment = require 'moment'
 stringify = require 'csv-stringify'
-JiraApi = require('jira').JiraApi
 Progress = require 'progress'
 _ = require 'underscore'
+search = require './search'
+State = require './state'
 
-now = moment()
-
-series = (bar, jira, dates, name, jql) ->
-  jql = jql.jql if jql.jql
-  jql = jql.join ' ' if Array.isArray jql
-  query = (date) ->
-    jqlWithDate = jql.replace /__DATE__/g, date
-    q()
-      .then ->
-        q.ninvoke jira, 'searchJira', jqlWithDate,
-          maxResults: 1
-          fields: []
-      .then (result) ->
-        bar.tick()
-        entry = {}
-        entry[name] = result.total
-        entry
-  q()
-    .then ->
-      q.all (query(date) for date in dates)
-      
-q()
+Q()
   .then ->
     configFile = process.argv[2]
     [
@@ -38,42 +17,43 @@ q()
     ]
   .spread (configJSON, outputDir) ->
     config = JSON.parse configJSON
-    jira = new JiraApi(
-      config.jira.protocol
-      config.jira.host
-      config.jira.port
-      config.jira.username
-      config.jira.password
-      config.jira.apiVersion
-      config.jira.verbose
-      config.jira.strictSSL
-      config.jira.oauth
+    jira = config.jira
+    jql = config.jql
+    jql = jql.join ' ' if Array.isArray jql
+    bar = undefined
+    [path.resolve(outputDir, config.output)].concat(
+      search
+        serverRoot: jira.protocol + '://' + jira.host
+        strictSSL: jira.strictSSL
+        user: jira.username
+        pass: jira.password
+        jql: jql
+        fields: 'issuetype,created,resolutiondate,priority,resolution,status,labels,components'
+        expand: 'changelog'
+        maxResults: 50
+        onTotal: (total) ->
+          bar = new Progress '  querying :current/:total :elapseds [:bar] :percent :etas',
+            total: total
+            complete: '='
+            incomplete: ' '
+            width: 20
+          bar.tick 0
+        initialState: new State config.days
+        stateAccumulator: (state, issue) ->
+          state.addIssue issue
+          bar.tick()
+          state
     )
-    dates = (moment(now).subtract(day, 'days').format('YYYY/MM/DD') for day in [(config.days - 1)..0])
-    bar = new Progress '  querying :elapseds [:bar] :percent :etas',
-      total: Object.keys(config.queries).length * config.days
-      complete: '='
-      incomplete: ' '
-      width: 20
-    bar.tick 0
-    [
-      {'date': date} for date in dates
-      q.all (series(bar, jira, dates, name, jql) for name, jql of config.queries)
-      path.resolve outputDir, config.output
-    ]
-  .spread (dates, data, output) ->
-    data.unshift dates
-    data = _.zip.apply _, data
-    data = (_.extend.apply(_,  entry) for entry in data)
-    [
-      output
-      q.nfcall stringify, data, { header: true }
-    ]
+  .spread (output, state) ->
+    [output].concat Q.nfcall stringify, state.days,
+      header: true
+      columns:
+        displayDate: 'date'
+        open: 'open'
+        openAndAssigned: 'open and assigned'
+        leadTime7DayMovingAverage: 'lead time (7 day moving average)'
   .spread (output, csv) ->
-    [
-      output
-      fs.write output, csv
-    ]
+    [output].concat fs.write output, csv
   .spread (output) ->
     console.log '\n  CSV data written to ' + output + '\n'
   .done()

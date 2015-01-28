@@ -11,6 +11,7 @@ _ = require 'underscore'
 #   pass: 'password'
 #   jql: 'project = "myproject"'
 #   fields: '*all'
+#   expand: 'changelog'
 #   maxResults: 50
 #   onTotal: (total) ->
 #     bar = new Progress '  querying :elapseds [:bar] :percent :etas',
@@ -19,13 +20,14 @@ _ = require 'underscore'
 #       incomplete: ' '
 #       width: 20
 #     bar.tick 0
-#   issueAccumulator: (issues, issue) ->
+#   initialState: []
+#   stateAccumulator: (state, issue) ->
+#     state.push issue.key
 #     bar.tick()
-#     issues.push issue.key
-#     issues
+#     state
 
 module.exports = (params) ->
-  queryParams = (startAt, maxResults) ->
+  queryParams = (startAt, maxResults, fields, expand) ->
     method: 'GET'
     strictSSL: params.strictSSL
     auth:
@@ -37,10 +39,11 @@ module.exports = (params) ->
       jql: params.jql
       maxResults: maxResults
       startAt: startAt
-      fields: params.fields
+      fields: fields
+      expand: expand
   Q()
     .then ->
-      query = request queryParams 0, 0
+      query = request queryParams 0, 0, '', ''
       deferred = Q.defer()
       jsonStream = JSONStream.parse 'total'
       jsonStream.once 'data', (total) ->
@@ -53,13 +56,13 @@ module.exports = (params) ->
       issuesPromise = ->
         deferred = Q.defer()
         jsonStream = JSONStream.parse 'issues.*'
-        reduceStream = reduce params.issueAccumulator, []
+        reduceStream = reduce params.stateAccumulator, params.initialState
         reduceStream.once 'data', (issues) ->
           deferred.resolve issues
-        query = request queryParams total - remaining, params.maxResults
+        query = request queryParams total - remaining, params.maxResults, params.fields, params.expand
         remaining -= params.maxResults
         query.pipe(jsonStream).pipe(reduceStream)
         deferred.promise
       Q.all (issuesPromise() while remaining > 0)
-    .then (issuesArray) ->
-      _.flatten issuesArray, true
+    .then (identicalStates) ->
+      identicalStates[0]
