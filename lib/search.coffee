@@ -4,20 +4,6 @@ reduce = require 'stream-reduce'
 Q = require 'q'
 _ = require 'underscore'
 
-queryPromise = (query, filter, initialValue, accumulator) ->
-  deferred = Q.defer()
-  jsonStream = JSONStream.parse filter
-  reduceStream = reduce accumulator, initialValue
-  reduceStream.on 'data', (value) ->
-    deferred.resolve value
-  query.pipe(jsonStream).pipe(reduceStream)
-  deferred.promise
-
-totalPromise = (query) ->
-  queryPromise query, 'total', 0, (total, newTotal) ->
-    total = newTotal
-    total
-
 # params =
 #   serverRoot: 'https://jira.myserver.com'
 #   strictSSL: true
@@ -26,12 +12,20 @@ totalPromise = (query) ->
 #   jql: 'project = "myproject"'
 #   fields: '*all'
 #   maxResults: 50
+#   onTotal: (total) ->
+#     bar = new Progress '  querying :elapseds [:bar] :percent :etas',
+#       total: total
+#       complete: '='
+#       incomplete: ' '
+#       width: 20
+#     bar.tick 0
 #   issueAccumulator: (issues, issue) ->
+#     bar.tick()
 #     issues.push issue.key
 #     issues
 
 module.exports = (params) ->
-  queryParams = (startAt) ->
+  queryParams = (startAt, maxResults) ->
     method: 'GET'
     strictSSL: params.strictSSL
     auth:
@@ -41,24 +35,33 @@ module.exports = (params) ->
     uri: params.serverRoot + '/rest/api/2/search'
     qs:
       jql: params.jql
-      maxResults: params.maxResults
+      maxResults: maxResults
       startAt: startAt
       fields: params.fields
   issuesPromise = (query) ->
     queryPromise query, 'issues.*', [], params.issueAccumulator
   Q()
     .then ->
-      query = request queryParams 0
-      [
-        totalPromise query
-        issuesPromise query
-      ]
-    .spread (total, issues) ->
-      remaining = total - params.maxResults
-      remainingPromise = ->
-        query = request queryParams total - remaining
+      query = request queryParams 0, 0
+      deferred = Q.defer()
+      jsonStream = JSONStream.parse 'total'
+      jsonStream.once 'data', (value) ->
+        deferred.resolve value
+      query.pipe jsonStream
+      deferred.promise
+    .then (total) ->
+      params.onTotal total
+      remaining = total
+      issuesPromise = ->
+        deferred = Q.defer()
+        jsonStream = JSONStream.parse 'issues.*'
+        reduceStream = reduce params.issueAccumulator, []
+        reduceStream.on 'data', (issues) ->
+          deferred.resolve issues
+        query = request queryParams total - remaining, params.maxResults
         remaining -= params.maxResults
-        issuesPromise query
-      Q.all [].concat(issues, remainingPromise() while remaining > 0)
+        query.pipe(jsonStream).pipe(reduceStream)
+        deferred.promise
+      Q.all (issuesPromise() while remaining > 0)
     .then (issuesArray) ->
       _.flatten issuesArray, true
