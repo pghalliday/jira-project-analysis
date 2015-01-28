@@ -54,7 +54,7 @@ module.exports = (params) ->
         deferred = Q.defer()
         jsonStream = JSONStream.parse 'issues.*'
         reduceStream = reduce params.issueAccumulator, []
-        reduceStream.on 'data', (issues) ->
+        reduceStream.once 'data', (issues) ->
           deferred.resolve issues
         query = request queryParams total - remaining, params.maxResults
         remaining -= params.maxResults
