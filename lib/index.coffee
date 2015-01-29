@@ -8,6 +8,32 @@ _ = require 'underscore'
 search = require './search'
 State = require './State'
 
+jqlExcludeValueList = (values) ->
+  quotedValues = _.map values, (value) ->
+    '"' + value + '"'
+  quotedValues.join ', '
+
+jqlExclude = (field, values) ->
+  if values.length
+    ' and ' + field + ' not in (' +
+    jqlExcludeValueList(values) +
+    ')'
+  else
+    ''
+
+jqlFields = [
+  'issuetype'
+  'created'
+  'resolutiondate'
+  'priority'
+  'resolution'
+  'status'
+  'labels'
+  'components'
+].join ','
+
+progressBarFormat = '  querying :current/:total :elapseds [:bar] :percent :etas'
+
 Q()
   .then ->
     configFile = process.argv[2]
@@ -23,23 +49,25 @@ Q()
     if exclude
       types = exclude.types
       if types
-        jql += (' and issuetype not in (' + _.reduce(types, ((types, type) -> types + (if types.length then ', ' else '') + '"' + type  + '"'), '')  + ')') if types.length
+        jql += jqlExclude 'issuetype', types
       statuses = exclude.statuses
       if statuses
-        jql += (' and status not in (' + _.reduce(statuses, ((statuses, status) -> statuses + (if statuses.length then ', ' else '') + '"' + status  + '"'), '')  + ')') if statuses.length
+        jql += jqlExclude 'status', statuses
     bar = undefined
-    [path.resolve(outputDir, config.output.days), path.resolve(outputDir, config.output.issues)].concat(
+    [
+      path.resolve(outputDir, config.output.days)
+      path.resolve(outputDir, config.output.issues)
       search
         serverRoot: jira.protocol + '://' + jira.host
         strictSSL: jira.strictSSL
         user: jira.username
         pass: jira.password
         jql: jql
-        fields: 'issuetype,created,resolutiondate,priority,resolution,status,labels,components'
+        fields: jqlFields
         expand: 'changelog'
         maxResults: 50
         onTotal: (total) ->
-          bar = new Progress '  querying :current/:total :elapseds [:bar] :percent :etas',
+          bar = new Progress progressBarFormat,
             total: total
             complete: '='
             incomplete: ' '
@@ -50,7 +78,7 @@ Q()
           state.addIssue issue
           bar.tick()
           state
-    )
+    ]
   .spread (outputDays, outputIssues, state) ->
     [outputDays, outputIssues].concat [
       Q.nfcall stringify, state.days,

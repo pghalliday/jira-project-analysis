@@ -8,7 +8,11 @@ class State
     @issueColumns = Issue.columns
     Issue.setStatusMap statusMap
     now = moment()
-    @days = (new Day(moment(now).subtract(day, 'days')) for day in [(days - 1)..0])
+    @days = (
+      new Day(
+        moment(now).subtract(day, 'days')
+      ) for day in [(days - 1)..0]
+    )
     @issues = []
 
   addIssue: (rawIssue) =>

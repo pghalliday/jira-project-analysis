@@ -2,6 +2,12 @@
   "name": "jira-project-analysis",
   "version": "0.1.0",
   "description": "Export JIRA project data as csv for analysis",
+  "scripts": {
+    "lint": "coffeelint -f coffeelint.json test/**.coffee lib/**.coffee",
+    "unit-test": "mocha",
+    "pretest": "npm run lint",
+    "test": "npm run unit-test"
+  },
   "keywords": [
     "jira",
     "csv",
@@ -27,6 +33,7 @@
     "JSONStream": "^0.10.0",
     "coffee-script": "^1.8.0",
     "csv-stringify": "0.0.5",
+    "mocha": "^2.1.0",
     "moment": "^2.9.0",
     "progress": "^1.1.8",
     "q": "^1.1.2",
@@ -34,5 +41,10 @@
     "request": "^2.51.0",
     "stream-reduce": "^1.0.3",
     "underscore": "^1.7.0"
+  },
+  "devDependencies": {
+    "chai": "^1.10.0",
+    "coffeelint": "^1.8.1",
+    "mocha": "^2.1.0"
   }
 }

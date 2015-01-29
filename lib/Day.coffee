@@ -17,7 +17,7 @@ class Day
       @leadTime7DayMovingAverage = (
         _.reduce(
           @leadTimes7Day
-          (total, leadTime) => total + leadTime
+          (total, leadTime) -> total + leadTime
         )
       ) / @leadTimes7Day.length
 

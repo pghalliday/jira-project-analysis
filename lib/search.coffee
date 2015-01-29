@@ -59,7 +59,14 @@ module.exports = (params) ->
         reduceStream = reduce params.stateAccumulator, params.initialState
         reduceStream.once 'data', (issues) ->
           deferred.resolve issues
-        query = request queryParams total - remaining, params.maxResults, params.fields, params.expand
+        query = request(
+          queryParams(
+            total - remaining
+            params.maxResults
+            params.fields
+            params.expand
+          )
+        )
         remaining -= params.maxResults
         query.pipe(jsonStream).pipe(reduceStream)
         deferred.promise

@@ -8,7 +8,9 @@ class Issue
     @statuses = []
     @processCreated Issue.initialStatus, moment rawIssue.fields.created
     @processChange(change) for change in rawIssue.changelog.histories
-    @processClosed(moment rawIssue.fields.resolutiondate) if rawIssue.fields.status.name in Issue.doneStatuses
+    @processClosed(
+      moment rawIssue.fields.resolutiondate
+    ) if rawIssue.fields.status.name in Issue.doneStatuses
 
   processCreated: (initialStatus, date) =>
     @created = date
@@ -41,7 +43,7 @@ class Issue
     @leadTime = @closed.diff @created, 'days'
 
   statusOnDate: (date) =>
-    iteratee = (status, change) =>
+    iteratee = (status, change) ->
       status = change.status if date.isAfter change.date
       status
     _.reduce @statuses, iteratee, null
@@ -50,7 +52,7 @@ class Issue
     @statusOnDate(date) in Issue.openStatuses
 
   assigneeOnDate: (date) =>
-    iteratee = (assignee, change) =>
+    iteratee = (assignee, change) ->
       assignee = change.assignee if date.isAfter change.date
       assignee
     _.reduce @assignees, iteratee, null
