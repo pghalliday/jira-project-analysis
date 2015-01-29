@@ -6,7 +6,7 @@ stringify = require 'csv-stringify'
 Progress = require 'progress'
 _ = require 'underscore'
 search = require './search'
-State = require './state'
+State = require './State'
 
 Q()
   .then ->
@@ -28,7 +28,7 @@ Q()
       if statuses
         jql += (' and status not in (' + _.reduce(statuses, ((statuses, status) -> statuses + (if statuses.length then ', ' else '') + '"' + status  + '"'), '')  + ')') if statuses.length
     bar = undefined
-    [path.resolve(outputDir, config.output)].concat(
+    [path.resolve(outputDir, config.output.days), path.resolve(outputDir, config.output.issues)].concat(
       search
         serverRoot: jira.protocol + '://' + jira.host
         strictSSL: jira.strictSSL
@@ -51,15 +51,22 @@ Q()
           bar.tick()
           state
     )
-  .spread (output, state) ->
-    [output].concat Q.nfcall stringify, state.days,
-      header: true
-      columns:
-        displayDate: 'date'
-        open: 'open'
-        leadTime7DayMovingAverage: 'lead time (7 day moving average)'
-  .spread (output, csv) ->
-    [output].concat fs.write output, csv
-  .spread (output) ->
-    console.log '\n  CSV data written to ' + output + '\n'
+  .spread (outputDays, outputIssues, state) ->
+    [outputDays, outputIssues].concat [
+      Q.nfcall stringify, state.days,
+        header: true
+        columns: state.dayColumns
+      Q.nfcall stringify, state.issues,
+        header: true
+        columns: state.issueColumns
+    ]
+  .spread (outputDays, outputIssues, csvDays, csvIssues) ->
+    [outputDays, outputIssues].concat [
+      fs.write outputDays, csvDays
+      fs.write outputIssues, csvIssues
+    ]
+  .spread (outputDays, outputIssues) ->
+    console.log '\n  CSV data written to:'
+    console.log '\n    ' + outputDays
+    console.log '\n    ' + outputIssues + '\n'
   .done()

@@ -1,13 +1,15 @@
-moment = require 'moment'
 _ = require 'underscore'
+moment = require 'moment'
 
 class Issue
-  constructor: (rawIssue, resolvedStatuses, initialStatus) ->
+  constructor: (rawIssue, @statusMap) ->
+    initialStatus = @statusMap.todo[0]
+    @openStatuses = @statusMap.todo.concat @statusMap.inProgress
     @assignees = []
     @statuses = []
     @processCreated initialStatus, moment rawIssue.fields.created
     @processChange(change) for change in rawIssue.changelog.histories
-    @processClosed(moment rawIssue.fields.resolutiondate) if rawIssue.fields.status.name in resolvedStatuses
+    @processClosed(moment rawIssue.fields.resolutiondate) if rawIssue.fields.status.name in @statusMap.done
 
   processCreated: (initialStatus, date) =>
     @created = date
@@ -43,6 +45,9 @@ class Issue
       status
     _.reduce @statuses, iteratee, null
 
+  openOnDate: (date) =>
+    @statusOnDate(date) in @openStatuses
+
   assigneeOnDate: (date) =>
     iteratee = (assignee, change) =>
       assignee = change.assignee if date.isAfter change.date
@@ -53,30 +58,5 @@ class Issue
     start = moment(date).subtract days, 'days'
     @closed.isBetween(start, date) if @closed
 
-class Day
-  constructor: (@date, @openStatuses) ->
-    @displayDate = @date.format 'YYYY/MM/DD'
-    @open = 0
-    @leadTimes7Day = []
-    @leadTime7DayMovingAverage = null
-
-  addIssue: (issue) =>
-    if issue.resolvedWithin(@date, 7)
-      @leadTimes7Day.push issue.leadTime
-      @leadTime7DayMovingAverage = (_.reduce @leadTimes7Day, (total, leadTime) => total + leadTime) / @leadTimes7Day.length
-    if issue.statusOnDate(@date) in @openStatuses
-      @open++
-
-class State
-  constructor: (days, @statusMap) ->
-    @statuses = @statusMap.todo.concat @statusMap.inProgress, @statusMap.done
-    now = moment()
-    @days = (new Day(moment(now).subtract(day, 'days'), @statusMap.todo.concat @statusMap.inProgress) for day in [(days - 1)..0])
-
-  addIssue: (rawIssue) =>
-    status = rawIssue.fields.status.name
-    console.log 'WARNING: status not mapped: ' + status if status not in @statuses
-    issue  = new Issue rawIssue, @statusMap.done, @initialStatus
-    day.addIssue(issue) for day in @days
-
-module.exports = State
+Issue.columns = {}
+module.exports = Issue
