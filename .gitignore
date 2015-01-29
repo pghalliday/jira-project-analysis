@@ -1,4 +1,5 @@
 node_modules/
+/coverage.html
 npm-debug.log
 *.csv
 /config.json

@@ -1,8 +1,10 @@
 chai = require 'chai'
 chai.should()
 
+moment = require 'moment'
 Day = require '../lib/Day'
 
 describe 'Day', ->
   it 'should pass', ->
-    true.should.be.ok
+    day = new Day moment()
+    day.should.be.ok
