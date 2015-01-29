@@ -1,15 +1,16 @@
 {
-  "name": "jira-time-series",
+  "name": "jira-project-analysis",
   "version": "0.1.0",
-  "description": "Export JIRA time series data as csv",
+  "description": "Export JIRA project data as csv for analysis",
   "keywords": [
     "jira",
     "csv",
-    "time-series"
+    "time-series",
+    "correlation"
   ],
-  "homepage": "https://github.com/pghalliday/jira-time-series",
+  "homepage": "https://github.com/pghalliday/jira-project-analysis",
   "bugs": {
-    "url": "https://github.com/pghalliday/jira-time-series/issues"
+    "url": "https://github.com/pghalliday/jira-project-analysis/issues"
   },
   "license": "MIT",
   "author": {
@@ -17,10 +18,10 @@
     "email": "pghalliday@gmail.com",
     "url": "http://pghalliday.com"
   },
-  "bin": "./bin/jira-time-series",
+  "bin": "./bin/jira-project-analysis",
   "repository": {
     "type": "git",
-    "url": "https://github.com/pghalliday/jira-time-series.git"
+    "url": "https://github.com/pghalliday/jira-project-analysis.git"
   },
   "dependencies": {
     "JSONStream": "^0.10.0",

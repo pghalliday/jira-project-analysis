@@ -1,5 +1,8 @@
 {
-  "output": "./jira-time-series.csv",
+  "output": {
+    "days": "./jira-days.csv",
+    "issues": "./jira-issues.csv"
+  },
   "days": 90,
   "project": [
     "MyProject"
@@ -15,7 +18,6 @@
       "Trash"
     ]
   },
-  "initialStatus": "To Do",
   "statusMap": {
     "todo": [
       "To Do"

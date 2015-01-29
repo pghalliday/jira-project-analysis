@@ -45,7 +45,7 @@ Q()
             incomplete: ' '
             width: 20
           bar.tick 0
-        initialState: new State config.days, config.statusMap, config.initialStatus
+        initialState: new State config.days, config.statusMap
         stateAccumulator: (state, issue) ->
           state.addIssue issue
           bar.tick()

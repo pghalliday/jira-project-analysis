@@ -1,11 +1,11 @@
-jira-time-series
-================
+jira-project-analysis
+=====================
 
-Export JIRA time series data
+Export JIRA project time series and correlation data as csv
 
 Usage
 -----
 
 ```
-bin/jira-time-series config.json
+bin/jira-project-analysis config.json
 ```
