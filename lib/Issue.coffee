@@ -4,74 +4,60 @@ moment = require 'moment'
 class Issue
   constructor: (rawIssue) ->
     @key = rawIssue.key
-    @assignees = []
-    @statuses = []
-    @processCreated Issue.initialStatus, moment rawIssue.fields.created
-    @processChange(change) for change in rawIssue.changelog.histories
-    @processClosed(
+    @_statuses = []
+    @_processCreated Issue._initialStatus, moment rawIssue.fields.created
+    @_processChange(change) for change in rawIssue.changelog.histories
+    @_processClosed(
       moment rawIssue.fields.resolutiondate
-    ) if rawIssue.fields.status.name in Issue.doneStatuses
+    ) if rawIssue.fields.status.name in Issue._doneStatuses
 
-  processCreated: (initialStatus, date) =>
-    @created = date
-    @createdDisplay = date.format 'YYYY/MM/DD'
-    @assignees.push
-      date: date
-      assignee: null
-    @statuses.push
+  _processCreated: (initialStatus, date) =>
+    @_created = date
+    @created = date.format 'YYYY/MM/DD'
+    @_statuses.push
       date: date
       status: initialStatus
 
-  processChange: (change) =>
+  _processChange: (change) =>
     date = moment change.created
-    @processChangeItem(date, item) for item in change.items
+    @_processChangeItem(date, item) for item in change.items
 
-  processChangeItem: (date, item) =>
+  _processChangeItem: (date, item) =>
     switch item.field
       when 'status'
-        @statuses.push
+        @_statuses.push
           date: date
           status: item.toString
-      when 'assignee'
-        @assignees.push
-          date: date
-          assignee: item.to
 
-  processClosed: (date) =>
-    @closed = date
-    @closedDisplay = date.format 'YYYY/MM/DD'
-    @leadTime = @closed.diff @created, 'days'
+  _processClosed: (date) =>
+    @_closed = date
+    @closed = date.format 'YYYY/MM/DD'
+    @leadTime = @_closed.diff @_created, 'days'
 
-  statusOnDate: (date) =>
+  _statusOnDate: (date) =>
     iteratee = (status, change) ->
       status = change.status if date.isAfter change.date
       status
-    _.reduce @statuses, iteratee, null
+    _.reduce @_statuses, iteratee, null
 
   openOnDate: (date) =>
-    @statusOnDate(date) in Issue.openStatuses
-
-  assigneeOnDate: (date) =>
-    iteratee = (assignee, change) ->
-      assignee = change.assignee if date.isAfter change.date
-      assignee
-    _.reduce @assignees, iteratee, null
+    @_statusOnDate(date) in Issue._openStatuses
 
   resolvedWithin: (date, days) =>
     start = moment(date).subtract days, 'days'
-    @closed.isBetween(start, date) if @closed
+    if @_closed then @_closed.isBetween(start, date) else false
 
 Issue.setStatusMap = (statusMap) ->
-  @initialStatus = statusMap.todo[0]
-  @openStatuses = statusMap.todo.concat statusMap.inProgress
-  @todoStatuses = statusMap.todo
-  @inProgressStatuses = statusMap.inProgress
-  @doneStatuses = statusMap.done
+  @_initialStatus = statusMap.todo[0]
+  @_openStatuses = statusMap.todo.concat statusMap.inProgress
+  @_todoStatuses = statusMap.todo
+  @_inProgressStatuses = statusMap.inProgress
+  @_doneStatuses = statusMap.done
 
 Issue.columns =
   key: 'key'
-  createdDisplay: 'created'
-  closedDisplay: 'closed'
+  created: 'created'
+  closed: 'closed'
   leadTime: 'lead time'
 
 module.exports = Issue

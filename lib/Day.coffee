@@ -1,32 +1,32 @@
 _ = require 'underscore'
 
 class Day
-  constructor: (@date, @statusMap) ->
-    @displayDate = @date.format 'YYYY/MM/DD'
+  constructor: (@_date, @statusMap) ->
+    @date = @_date.format 'YYYY/MM/DD'
     @open = 0
-    @leadTimes7Day = []
+    @_leadTimes7Day = []
     @leadTime7DayMovingAverage = null
 
   addIssue: (issue) =>
-    @updateleadTime7DayMovingAverage issue
-    @updateOpen issue
+    @_updateleadTime7DayMovingAverage issue
+    @_updateOpen issue
 
-  updateleadTime7DayMovingAverage: (issue) =>
-    if issue.resolvedWithin(@date, 7)
-      @leadTimes7Day.push issue.leadTime
+  _updateleadTime7DayMovingAverage: (issue) =>
+    if issue.resolvedWithin(@_date, 7)
+      @_leadTimes7Day.push issue.leadTime
       @leadTime7DayMovingAverage = (
         _.reduce(
-          @leadTimes7Day
+          @_leadTimes7Day
           (total, leadTime) -> total + leadTime
         )
-      ) / @leadTimes7Day.length
+      ) / @_leadTimes7Day.length
 
-  updateOpen: (issue) =>
-    if issue.openOnDate(@date)
+  _updateOpen: (issue) =>
+    if issue.openOnDate(@_date)
       @open++
 
 Day.columns =
-  displayDate: 'date'
+  date: 'date'
   open: 'open'
   leadTime7DayMovingAverage: 'lead time (7 day moving average)'
 

@@ -39,7 +39,6 @@
     "JSONStream": "^0.10.0",
     "coffee-script": "^1.8.0",
     "csv-stringify": "0.0.5",
-    "mocha": "^2.1.0",
     "moment": "^2.9.0",
     "progress": "^1.1.8",
     "q": "^1.1.2",
@@ -54,6 +53,8 @@
     "coffeelint": "^1.8.1",
     "mocha": "^2.1.0",
     "mocha-multi": "^0.6.0",
+    "sinon": "^1.12.2",
+    "sinon-chai": "^2.6.0",
     "travis-cov": "^0.2.5"
   }
 }
