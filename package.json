@@ -27,7 +27,6 @@
     "JSONStream": "^0.10.0",
     "coffee-script": "^1.8.0",
     "csv-stringify": "0.0.5",
-    "jira": "^0.9.2",
     "moment": "^2.9.0",
     "progress": "^1.1.8",
     "q": "^1.1.2",
