@@ -11,10 +11,11 @@ Day = require '../lib/Day'
 describe 'Day', ->
   before ->
     @moment = moment()
-    @day = new Day @moment
+    @Day = Day()
+    @day = new @Day @moment
 
   it 'should export columns', ->
-    Day.columns.should.deep.equal
+    @Day.columns.should.deep.equal
       date: 'date'
       open: 'open'
       leadTime7DayMovingAverage: 'lead time (7 day moving average)'
@@ -31,7 +32,7 @@ describe 'Day', ->
   describe '#addIssue', ->
     it 'should correctly accumulate fields', ->
       now = moment()
-      day = new Day now
+      day = new @Day now
       issue =
         leadTime: 5
         resolvedWithin: sinon.spy -> true

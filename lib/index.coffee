@@ -5,8 +5,11 @@ path = require 'path'
 stringify = require 'csv-stringify'
 Progress = require 'progress'
 _ = require 'underscore'
+moment = require 'moment'
 search = require './search'
 State = require './State'
+Day = require './Day'
+Issue = require './Issue'
 
 jqlExcludeValueList = (values) ->
   quotedValues = _.map values, (value) ->
@@ -73,7 +76,12 @@ Q()
             incomplete: ' '
             width: 20
           bar.tick 0
-        initialState: new State config.days, config.statusMap
+        initialState: new State(
+          moment()
+          config.days
+          Day()
+          Issue config.statusMap
+        )
         stateAccumulator: (state, issue) ->
           state.addIssue issue
           bar.tick()
@@ -83,10 +91,10 @@ Q()
     [outputDays, outputIssues].concat [
       Q.nfcall stringify, state.days,
         header: true
-        columns: state.dayColumns
+        columns: state.Day.columns
       Q.nfcall stringify, state.issues,
         header: true
-        columns: state.issueColumns
+        columns: state.Issue.columns
     ]
   .spread (outputDays, outputIssues, csvDays, csvIssues) ->
     [outputDays, outputIssues].concat [

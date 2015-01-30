@@ -20,10 +20,10 @@ describe 'Issue', ->
         'done'
         'closed'
       ]
-    Issue.setStatusMap @statusMap
+    @Issue = Issue @statusMap
 
   it 'should export columns', ->
-    Issue.columns.should.deep.equal
+    @Issue.columns.should.deep.equal
       key: 'key'
       created: 'created'
       closed: 'closed'
@@ -39,7 +39,7 @@ describe 'Issue', ->
             name: 'todo'
         changelog:
           histories: []
-      @issue = new Issue @rawIssue
+      @issue = new @Issue @rawIssue
 
     it 'should initialise key', ->
       @issue.key.should.equal 'key-1'
@@ -90,7 +90,7 @@ describe 'Issue', ->
               toString: 'done'
             ]
           ]
-      @issue = new Issue @rawIssue
+      @issue = new @Issue @rawIssue
 
     it 'should initialise key', ->
       @issue.key.should.equal 'key-2'

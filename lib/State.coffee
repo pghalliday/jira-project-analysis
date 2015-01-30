@@ -1,22 +1,16 @@
 moment = require 'moment'
-Day = require './Day'
-Issue = require './Issue'
 
 class State
-  constructor: (days, statusMap) ->
-    @dayColumns = Day.columns
-    @issueColumns = Issue.columns
-    Issue.setStatusMap statusMap
-    now = moment()
+  constructor: (now, days, @Day, @Issue) ->
     @days = (
-      new Day(
+      new @Day(
         moment(now).subtract(day, 'days')
       ) for day in [(days - 1)..0]
     )
     @issues = []
 
   addIssue: (rawIssue) =>
-    issue  = new Issue rawIssue, @statusMap, @initialStatus
+    issue  = new @Issue rawIssue
     @issues.push issue
     day.addIssue(issue) for day in @days
 
