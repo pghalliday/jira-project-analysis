@@ -7,6 +7,7 @@ Issue = require '../lib/Issue'
 
 describe 'Issue', ->
   before ->
+    @now = moment '2015-02-01T11:19:48.633+0000'
     @statusMap =
       todo: [
         'todo'
@@ -28,6 +29,13 @@ describe 'Issue', ->
       created: 'created'
       closed: 'closed'
       leadTime: 'lead time'
+      cycleTime: 'cycle time'
+      deferredTime: 'deferred time'
+      type: 'type'
+      priority: 'priority'
+      resolution: 'resolution'
+      components: 'components'
+      labels: 'labels'
 
   describe 'from new issue with no changelog', ->
     before ->
@@ -37,9 +45,13 @@ describe 'Issue', ->
           created: '2015-01-20T11:19:48.633+0000'
           status:
             name: 'todo'
+          issuetype:
+            name: 'bug'
+          priority:
+            name: 'p1'
         changelog:
           histories: []
-      @issue = new @Issue @rawIssue
+      @issue = new @Issue @rawIssue, @now
 
     it 'should initialise key', ->
       @issue.key.should.equal 'key-1'
@@ -52,6 +64,35 @@ describe 'Issue', ->
 
     it 'should initialise lead time', ->
       expect(@issue.leadTime).to.be.undefined
+
+    it 'should initialise cycle time', ->
+      expect(@issue.cycleTime).to.be.undefined
+
+    it 'should initialise deferred time', ->
+      expect(@issue.deferredTime).to.be.undefined
+
+    it 'should initialise type', ->
+      @issue.type.should.equal 'bug'
+
+    it 'should initialise priority', ->
+      @issue.priority.should.equal 'p1'
+
+    it 'should initialise resolution', ->
+      expect(@issue.resolution).to.be.undefined
+
+    describe '#openOnDate', ->
+      it 'should return true if date is after created', ->
+        date = moment '2015-01-22T11:19:48.633+0000'
+        @issue.openOnDate(date).should.be.true
+
+    describe '#technicalDebtOnDate', ->
+      it 'should return 0 if date is before created', ->
+        date = moment '2015-01-19T11:19:48.633+0000'
+        @issue.technicalDebtOnDate(date).should.equal 0
+
+      it 'should return number of days open if date is after created', ->
+        date = moment '2015-01-22T11:19:48.633+0000'
+        @issue.technicalDebtOnDate(date).should.equal 2
 
     describe '#resolvedWithin', ->
       it 'should return false if issue is not done', ->
@@ -67,6 +108,12 @@ describe 'Issue', ->
           resolutiondate: '2015-01-26T11:19:48.633+0000'
           status:
             name: 'done'
+          issuetype:
+            name: 'bug'
+          priority:
+            name: 'p1'
+          resolution:
+            name: 'fixed'
         changelog:
           histories: [
             created: '2015-01-22T11:19:48.633+0000'
@@ -90,19 +137,22 @@ describe 'Issue', ->
               toString: 'done'
             ]
           ]
-      @issue = new @Issue @rawIssue
-
-    it 'should initialise key', ->
-      @issue.key.should.equal 'key-2'
-
-    it 'should initialise display created date', ->
-      @issue.created.should.equal '2015/01/20'
+      @issue = new @Issue @rawIssue, @now
 
     it 'should initialise display closed date', ->
       @issue.closed.should.equal '2015/01/26'
 
     it 'should initialise lead time', ->
       @issue.leadTime.should.equal 6
+
+    it 'should initialise cycle time', ->
+      @issue.cycleTime.should.equal 2
+
+    it 'should initialise deferred time', ->
+      @issue.deferredTime.should.equal 4
+
+    it 'should initialise resolution', ->
+      @issue.resolution.should.equal 'fixed'
 
     describe '#openOnDate', ->
       it 'should return false if date is before created', ->
@@ -117,6 +167,11 @@ describe 'Issue', ->
         date = moment '2015-01-27T11:19:48.633+0000'
         @issue.openOnDate(date).should.be.false
 
+    describe '#technicalDebtOnDate', ->
+      it 'should return 0 if date is after done', ->
+        date = moment '2015-01-27T11:19:48.633+0000'
+        @issue.technicalDebtOnDate(date).should.equal 0
+
     describe '#resolvedWithin', ->
       it 'should return false if resolved more than x days before date', ->
         date = moment '2015-01-30T11:19:48.633+0000'
@@ -125,3 +180,66 @@ describe 'Issue', ->
       it 'should return true if resolved less than x days before date', ->
         date = moment '2015-01-29T11:19:48.633+0000'
         @issue.resolvedWithin(date, 3).should.be.false
+
+  describe 'from closed issue with missing resolutiondate', ->
+    before ->
+      @rawIssue =
+        key: 'key-2'
+        fields:
+          created: '2015-01-20T11:19:48.633+0000'
+          status:
+            name: 'done'
+          issuetype:
+            name: 'bug'
+          priority:
+            name: 'p1'
+          resolution:
+            name: 'fixed'
+        changelog:
+          histories: [
+            created: '2015-01-22T11:19:48.633+0000'
+            items: [
+              field: 'assignee'
+              to: 'user1'
+            ]
+          ,
+            created: '2015-01-24T11:19:48.633+0000'
+            items: [
+              field: 'status'
+              toString: 'in progress'
+            ]
+          ,
+            created: '2015-01-26T11:19:48.633+0000'
+            items: [
+              field: 'assignee'
+              to: 'user2'
+            ,
+              field: 'status'
+              toString: 'done'
+            ]
+          ]
+      @issue = new @Issue @rawIssue, @now
+
+    it 'should initialise display closed date', ->
+      @issue.closed.should.equal '2015/01/26'
+
+# coffeelint: disable=max_line_length
+  describe 'from closed issue with missing resolutiondate and no status changes', ->
+# coffeelint: enable=max_line_length
+    before ->
+      @rawIssue =
+        key: 'key-2'
+        fields:
+          created: '2015-01-20T11:19:48.633+0000'
+          status:
+            name: 'done'
+          issuetype:
+            name: 'bug'
+          priority:
+            name: 'p1'
+        changelog:
+          histories: []
+      @issue = new @Issue @rawIssue, @now
+
+    it 'should initialise display closed date to equal the created date', ->
+      @issue.closed.should.equal '2015/01/20'

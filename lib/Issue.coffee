@@ -14,18 +14,29 @@ module.exports = (statusMap) ->
       created: 'created'
       closed: 'closed'
       leadTime: 'lead time'
+      cycleTime: 'cycle time'
+      deferredTime: 'deferred time'
+      type: 'type'
+      priority: 'priority'
+      resolution: 'resolution'
+      components: 'components'
+      labels: 'labels'
 
-    constructor: (rawIssue) ->
+    constructor: (rawIssue, @now) ->
       @key = rawIssue.key
+      @type = rawIssue.fields.issuetype.name
+      @priority = rawIssue.fields.priority.name
       @_statuses = []
       @_processCreated __initialStatus, moment rawIssue.fields.created
       @_processChange(change) for change in rawIssue.changelog.histories
       @_processClosed(
-        moment rawIssue.fields.resolutiondate
+        rawIssue.fields.resolutiondate
+        rawIssue.fields.resolution
       ) if rawIssue.fields.status.name in __doneStatuses
 
     _processCreated: (initialStatus, date) =>
       @_created = date
+      @technicalDebt = @now.diff @_created, 'days'
       @created = date.format 'YYYY/MM/DD'
       @_statuses.push
         date: date
@@ -42,19 +53,55 @@ module.exports = (statusMap) ->
             date: date
             status: item.toString
 
-    _processClosed: (date) =>
-      @_closed = date
-      @closed = date.format 'YYYY/MM/DD'
+    _processClosed: (resolutiondate, resolution) =>
+      @resolution = resolution.name if resolution
+      if resolutiondate
+        @_closed = moment resolutiondate
+      else
+        @_closed = @_lookupResolutionDate()
+      @technicalDebt = 0
       @leadTime = @_closed.diff @_created, 'days'
+      @cycleTime = @_calculateCycleTime()
+      @deferredTime = @leadTime - @cycleTime
+      @closed = @_closed.format 'YYYY/MM/DD'
 
-    _statusOnDate: (date) =>
-      iteratee = (status, change) ->
-        status = change.status if date.isAfter change.date
-        status
-      _.reduce @_statuses, iteratee, null
+    _lookupResolutionDate: =>
+      resolutiondate = @_created
+      index = @_statuses.length - 1
+      while index >= 0 and @_statuses[index].status in __doneStatuses
+        resolutiondate = @_statuses[index].date
+        index--
+      resolutiondate
+
+    _calculateCycleTime: =>
+      inProgress = false
+      inProgressStart = null
+      iteratee = (cycleTime, change) ->
+        if change.status in __inProgressStatuses
+          if not inProgress
+            inProgress = true
+            inProgressStart = change.date
+        else
+          if inProgress
+            inProgress = false
+            cycleTime += change.date.diff inProgressStart, 'days'
+        cycleTime
+      _.reduce @_statuses, iteratee, 0
 
     openOnDate: (date) =>
-      @_statusOnDate(date) in __openStatuses
+      if date.isBefore @_created
+        false
+      else
+        if @_closed
+          date.isBefore @_closed
+        else
+          true
+
+    technicalDebtOnDate: (date) =>
+      if @openOnDate date
+        date.diff @_created, 'days'
+      else
+        0
 
     resolvedWithin: (date, days) =>
       start = moment(date).subtract days, 'days'
