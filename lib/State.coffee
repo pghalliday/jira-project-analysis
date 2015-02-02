@@ -10,8 +10,15 @@ class State
     @issues = []
 
   addIssue: (rawIssue) =>
-    issue  = new @Issue rawIssue, @now
-    @issues.push issue
-    day.addIssue(issue) for day in @days
+    @issues.push new @Issue rawIssue
+
+  applyIssuesToDays: =>
+    @Day.types = @Issue.types
+    @Day.priorities = @Issue.priorities
+    @Day.resolutions = @Issue.resolutions
+    @Day.labels = @Issue.labels
+    @Day.components = @Issue.components
+    for issue in @issues
+      day.addIssue(issue) for day in @days
 
 module.exports = State

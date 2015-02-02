@@ -23,7 +23,7 @@ describe 'Issue', ->
       ]
     @Issue = Issue @statusMap
 
-  it 'should export columns', ->
+  it 'should export initial columns', ->
     @Issue.columns.should.deep.equal
       key: 'key'
       created: 'created'
@@ -34,8 +34,21 @@ describe 'Issue', ->
       type: 'type'
       priority: 'priority'
       resolution: 'resolution'
-      components: 'components'
-      labels: 'labels'
+
+  it 'should export initial labels', ->
+    @Issue.labels.should.deep.equal []
+
+  it 'should export initial components', ->
+    @Issue.components.should.deep.equal []
+
+  it 'should export initial types', ->
+    @Issue.types.should.deep.equal []
+
+  it 'should export initial priorities', ->
+    @Issue.priorities.should.deep.equal []
+
+  it 'should export initial resolutions', ->
+    @Issue.resolutions.should.deep.equal []
 
   describe 'from new issue with no changelog', ->
     before ->
@@ -49,9 +62,18 @@ describe 'Issue', ->
             name: 'bug'
           priority:
             name: 'p1'
+          labels: [
+            'label1'
+            'label2'
+          ]
+          components: [
+            name: 'component1'
+          ,
+            name: 'component2'
+          ]
         changelog:
           histories: []
-      @issue = new @Issue @rawIssue, @now
+      @issue = new @Issue @rawIssue
 
     it 'should initialise key', ->
       @issue.key.should.equal 'key-1'
@@ -79,6 +101,66 @@ describe 'Issue', ->
 
     it 'should initialise resolution', ->
       expect(@issue.resolution).to.be.undefined
+
+    it 'should initialise labels', ->
+      @issue.label_label1.should.equal 'yes'
+      @issue.label_label2.should.equal 'yes'
+
+    it 'should initialise components', ->
+      @issue.component_component1.should.equal 'yes'
+      @issue.component_component2.should.equal 'yes'
+
+    it 'should append to Issue labels', ->
+      @Issue.labels.should.deep.equal [
+        'label1'
+        'label2'
+      ]
+
+    it 'should append to Issue components', ->
+      @Issue.components.should.deep.equal [
+        'component1'
+        'component2'
+      ]
+
+    it 'should append to Issue types', ->
+      @Issue.types.should.deep.equal [
+        'bug'
+      ]
+
+    it 'should append to Issue priorities', ->
+      @Issue.priorities.should.deep.equal [
+        'p1'
+      ]
+
+    it 'should append to Issue columns', ->
+      @Issue.columns.should.deep.equal
+        key: 'key'
+        created: 'created'
+        closed: 'closed'
+        leadTime: 'lead time'
+        cycleTime: 'cycle time'
+        deferredTime: 'deferred time'
+        type: 'type'
+        priority: 'priority'
+        resolution: 'resolution'
+        label_label1: 'label:label1'
+        label_label2: 'label:label2'
+        component_component1: 'component:component1'
+        component_component2: 'component:component2'
+
+    describe '#hasLabel', ->
+      it 'should return true if issue has label', ->
+        @issue.hasLabel('label1').should.be.true
+
+      it 'should return false if issue does not have label', ->
+        @issue.hasLabel('label3').should.be.false
+
+    describe '#affectsComponent', ->
+      it 'should return true if issue affects component', ->
+        @issue.affectsComponent('component1').should.be.true
+
+      it 'should return false if issue does not affect component', ->
+        @issue.affectsComponent('component3').should.be.false
 
     describe '#openOnDate', ->
       it 'should return true if date is after created', ->
@@ -114,6 +196,15 @@ describe 'Issue', ->
             name: 'p1'
           resolution:
             name: 'fixed'
+          labels: [
+            'label1'
+            'label2'
+          ]
+          components: [
+            name: 'component1'
+          ,
+            name: 'component2'
+          ]
         changelog:
           histories: [
             created: '2015-01-22T11:19:48.633+0000'
@@ -137,7 +228,7 @@ describe 'Issue', ->
               toString: 'done'
             ]
           ]
-      @issue = new @Issue @rawIssue, @now
+      @issue = new @Issue @rawIssue
 
     it 'should initialise display closed date', ->
       @issue.closed.should.equal '2015/01/26'
@@ -153,6 +244,11 @@ describe 'Issue', ->
 
     it 'should initialise resolution', ->
       @issue.resolution.should.equal 'fixed'
+
+    it 'should append to Issue resolutions', ->
+      @Issue.resolutions.should.deep.equal [
+        'fixed'
+      ]
 
     describe '#openOnDate', ->
       it 'should return false if date is before created', ->
@@ -195,6 +291,15 @@ describe 'Issue', ->
             name: 'p1'
           resolution:
             name: 'fixed'
+          labels: [
+            'label1'
+            'label2'
+          ]
+          components: [
+            name: 'component1'
+          ,
+            name: 'component2'
+          ]
         changelog:
           histories: [
             created: '2015-01-22T11:19:48.633+0000'
@@ -218,7 +323,7 @@ describe 'Issue', ->
               toString: 'done'
             ]
           ]
-      @issue = new @Issue @rawIssue, @now
+      @issue = new @Issue @rawIssue
 
     it 'should initialise display closed date', ->
       @issue.closed.should.equal '2015/01/26'
@@ -237,9 +342,18 @@ describe 'Issue', ->
             name: 'bug'
           priority:
             name: 'p1'
+          labels: [
+            'label1'
+            'label2'
+          ]
+          components: [
+            name: 'component1'
+          ,
+            name: 'component2'
+          ]
         changelog:
           histories: []
-      @issue = new @Issue @rawIssue, @now
+      @issue = new @Issue @rawIssue
 
     it 'should initialise display closed date to equal the created date', ->
       @issue.closed.should.equal '2015/01/20'

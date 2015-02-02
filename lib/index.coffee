@@ -88,6 +88,7 @@ Q()
           state
     ]
   .spread (outputDays, outputIssues, state) ->
+    state.applyIssuesToDays()
     [outputDays, outputIssues].concat [
       Q.nfcall stringify, state.days,
         header: true

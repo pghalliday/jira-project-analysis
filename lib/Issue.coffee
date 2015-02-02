@@ -1,6 +1,9 @@
 _ = require 'underscore'
 moment = require 'moment'
 
+labelFieldName = (label) -> 'label_' + label
+componentFieldName = (component) -> 'component_' + component
+
 module.exports = (statusMap) ->
   __initialStatus = statusMap.todo[0]
   __openStatuses = statusMap.todo.concat statusMap.inProgress
@@ -19,24 +22,56 @@ module.exports = (statusMap) ->
       type: 'type'
       priority: 'priority'
       resolution: 'resolution'
-      components: 'components'
-      labels: 'labels'
+    @types = []
+    @priorities = []
+    @resolutions = []
+    @labels = []
+    @components = []
 
-    constructor: (rawIssue, @now) ->
+    constructor: (rawIssue) ->
       @key = rawIssue.key
-      @type = rawIssue.fields.issuetype.name
-      @priority = rawIssue.fields.priority.name
+      fields = rawIssue.fields
+      changelog = rawIssue.changelog
+      @_processType fields.issuetype.name
+      @_processPriority fields.priority.name
+      @_processLabel label for label in fields.labels
+      @_processComponent component.name for component in fields.components
       @_statuses = []
-      @_processCreated __initialStatus, moment rawIssue.fields.created
-      @_processChange(change) for change in rawIssue.changelog.histories
+      @_processCreated __initialStatus, moment fields.created
+      @_processChange(change) for change in changelog.histories
       @_processClosed(
-        rawIssue.fields.resolutiondate
-        rawIssue.fields.resolution
-      ) if rawIssue.fields.status.name in __doneStatuses
+        fields.resolutiondate
+        fields.resolution
+      ) if fields.status.name in __doneStatuses
+
+    _processType: (@type) =>
+      types = Issue.types
+      types.push @type if types.indexOf @type is -1
+
+    _processPriority: (@priority) =>
+      priorities = Issue.priorities
+      priorities.push @priority if priorities.indexOf @priority is -1
+
+    _processLabel: (label) =>
+      labels = Issue.labels
+      field = labelFieldName label
+      @[field] = 'yes'
+      Issue.columns[field] = 'label:' + label
+      labels.push label if labels.indexOf label is -1
+
+    hasLabel: (label) => @[labelFieldName label] == 'yes'
+
+    _processComponent: (component) =>
+      components = Issue.components
+      field = componentFieldName component
+      @[field] = 'yes'
+      Issue.columns[field] = 'component:' + component
+      components.push component if components.indexOf component is -1
+
+    affectsComponent: (component) => @[componentFieldName component] == 'yes'
 
     _processCreated: (initialStatus, date) =>
       @_created = date
-      @technicalDebt = @now.diff @_created, 'days'
       @created = date.format 'YYYY/MM/DD'
       @_statuses.push
         date: date
@@ -54,7 +89,10 @@ module.exports = (statusMap) ->
             status: item.toString
 
     _processClosed: (resolutiondate, resolution) =>
-      @resolution = resolution.name if resolution
+      if resolution
+        @resolution = resolution.name
+        resolutions = Issue.resolutions
+        resolutions.push @resolution if resolutions.indexOf @resolution is -1
       if resolutiondate
         @_closed = moment resolutiondate
       else
