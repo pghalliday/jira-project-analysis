@@ -4,16 +4,18 @@ moment = require 'moment'
 labelFieldName = (label) -> 'label_' + label
 componentFieldName = (component) -> 'component_' + component
 
-module.exports = (statusMap) ->
-  __initialStatus = statusMap.todo[0]
-  __openStatuses = statusMap.todo.concat statusMap.inProgress
-  __todoStatuses = statusMap.todo
-  __inProgressStatuses = statusMap.inProgress
-  __doneStatuses = statusMap.done
+module.exports = (__statusMap, __minimumTrustedCycleTime) ->
+  __minimumTrustedCycleTime = __minimumTrustedCycleTime or 0
+  __initialStatus = __statusMap.todo[0]
+  __openStatuses = __statusMap.todo.concat __statusMap.inProgress
+  __todoStatuses = __statusMap.todo
+  __inProgressStatuses = __statusMap.inProgress
+  __doneStatuses = __statusMap.done
 
   class Issue
     @columns =
       key: 'key'
+      status: 'status'
       created: 'created'
       closed: 'closed'
       leadTime: 'lead time'
@@ -27,22 +29,26 @@ module.exports = (statusMap) ->
     @resolutions = []
     @labels = []
     @components = []
+    @closers = {}
 
     constructor: (rawIssue) ->
       @key = rawIssue.key
       fields = rawIssue.fields
       changelog = rawIssue.changelog
+      @status = fields.status.name
       @_processType fields.issuetype.name
       @_processPriority fields.priority.name
       @_processLabel label for label in fields.labels
       @_processComponent component.name for component in fields.components
       @_statuses = []
+      @_closers = []
       @_processCreated __initialStatus, moment fields.created
+      @_lastStatus = __initialStatus
       @_processChange(change) for change in changelog.histories
       @_processClosed(
         fields.resolutiondate
         fields.resolution
-      ) if fields.status.name in __doneStatuses
+      ) if @status in __doneStatuses
 
     _processType: (@type) =>
       types = Issue.types
@@ -79,14 +85,30 @@ module.exports = (statusMap) ->
 
     _processChange: (change) =>
       date = moment change.created
-      @_processChangeItem(date, item) for item in change.items
+      change.author.name
+      @_processChangeItem(
+        date
+        change.author.name
+        item
+      ) for item in change.items
 
-    _processChangeItem: (date, item) =>
+    _processChangeItem: (date, author, item) =>
       switch item.field
         when 'status'
+          status = item.toString
           @_statuses.push
             date: date
-            status: item.toString
+            status: status
+          if status in __doneStatuses and @_lastStatus not in __doneStatuses
+            @_closers.push author if author not in @_closers
+            Issue.closers[author] = [] if not Issue.closers[author]
+            closes = Issue.closers[author]
+            close =
+              key: @key
+              unixTime: date.unix()
+            insertIndex = _.sortedIndex closes, close, 'unixTime'
+            closes.splice insertIndex, 0, close
+          @_lastStatus = status
 
     _processClosed: (resolutiondate, resolution) =>
       if resolution
@@ -97,8 +119,7 @@ module.exports = (statusMap) ->
         @_closed = moment resolutiondate
       else
         @_closed = @_lookupResolutionDate()
-      @technicalDebt = 0
-      @leadTime = @_closed.diff @_created, 'days'
+      @leadTime = @_closed.diff @_created, 'seconds'
       @cycleTime = @_calculateCycleTime()
       @deferredTime = @leadTime - @cycleTime
       @closed = @_closed.format 'YYYY/MM/DD'
@@ -122,9 +143,22 @@ module.exports = (statusMap) ->
         else
           if inProgress
             inProgress = false
-            cycleTime += change.date.diff inProgressStart, 'days'
+            cycleTime += change.date.diff inProgressStart, 'seconds'
         cycleTime
       _.reduce @_statuses, iteratee, 0
+
+    checkCycleTime: =>
+      if @_closed
+        if @cycleTime < __minimumTrustedCycleTime
+          @cycleTime = 0
+          for closer in @_closers
+            lastClose = null
+            for close in Issue.closers[closer]
+              if close.key is @key
+                if lastClose
+                  @cycleTime += close.unixTime - lastClose.unixTime
+              lastClose = close
+          @deferredTime = @leadTime - @cycleTime
 
     openOnDate: (date) =>
       if date.isBefore @_created
@@ -137,7 +171,7 @@ module.exports = (statusMap) ->
 
     technicalDebtOnDate: (date) =>
       if @openOnDate date
-        date.diff @_created, 'days'
+        date.diff @_created, 'seconds'
       else
         0
 

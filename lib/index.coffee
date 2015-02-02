@@ -7,9 +7,8 @@ Progress = require 'progress'
 _ = require 'underscore'
 moment = require 'moment'
 search = require './search'
-State = require './State'
-Day = require './Day'
-Issue = require './Issue'
+dayClass = require './Day'
+issueClass = require './Issue'
 
 jqlExcludeValueList = (values) ->
   quotedValues = _.map values, (value) ->
@@ -57,7 +56,10 @@ Q()
       if statuses
         jql += jqlExclude 'status', statuses
     bar = undefined
+    Issue = issueClass config.statusMap, config.minimumTrustedCycleTime
     [
+      Issue
+      config.numberOfDays
       path.resolve(outputDir, config.output.days)
       path.resolve(outputDir, config.output.issues)
       search
@@ -76,26 +78,27 @@ Q()
             incomplete: ' '
             width: 20
           bar.tick 0
-        initialState: new State(
-          moment()
-          config.days
-          Day()
-          Issue config.statusMap
-        )
-        stateAccumulator: (state, issue) ->
-          state.addIssue issue
+        mapCallback: (issue) ->
           bar.tick()
-          state
+          new Issue issue
     ]
-  .spread (outputDays, outputIssues, state) ->
-    state.applyIssuesToDays()
+  .spread (Issue, numberOfDays, outputDays, outputIssues, issues) ->
+    Day = dayClass Issue
+    days = (
+      new Day(
+        moment().subtract(day, 'days')
+      ) for day in [(numberOfDays - 1)..0]
+    )
+    for issue in issues
+      issue.checkCycleTime()
+      (day.addIssue issue) for day in days
     [outputDays, outputIssues].concat [
-      Q.nfcall stringify, state.days,
+      Q.nfcall stringify, days,
         header: true
-        columns: state.Day.columns
-      Q.nfcall stringify, state.issues,
+        columns: Day.columns
+      Q.nfcall stringify, issues,
         header: true
-        columns: state.Issue.columns
+        columns: Issue.columns
     ]
   .spread (outputDays, outputIssues, csvDays, csvIssues) ->
     [outputDays, outputIssues].concat [

@@ -7,7 +7,6 @@ Issue = require '../lib/Issue'
 
 describe 'Issue', ->
   before ->
-    @now = moment '2015-02-01T11:19:48.633+0000'
     @statusMap =
       todo: [
         'todo'
@@ -26,6 +25,7 @@ describe 'Issue', ->
   it 'should export initial columns', ->
     @Issue.columns.should.deep.equal
       key: 'key'
+      status: 'status'
       created: 'created'
       closed: 'closed'
       leadTime: 'lead time'
@@ -77,6 +77,9 @@ describe 'Issue', ->
 
     it 'should initialise key', ->
       @issue.key.should.equal 'key-1'
+
+    it 'should initialise status', ->
+      @issue.status.should.equal 'todo'
 
     it 'should initialise display created date', ->
       @issue.created.should.equal '2015/01/20'
@@ -135,6 +138,7 @@ describe 'Issue', ->
     it 'should append to Issue columns', ->
       @Issue.columns.should.deep.equal
         key: 'key'
+        status: 'status'
         created: 'created'
         closed: 'closed'
         leadTime: 'lead time'
@@ -174,7 +178,7 @@ describe 'Issue', ->
 
       it 'should return number of days open if date is after created', ->
         date = moment '2015-01-22T11:19:48.633+0000'
-        @issue.technicalDebtOnDate(date).should.equal 2
+        @issue.technicalDebtOnDate(date).should.equal 172800
 
     describe '#resolvedWithin', ->
       it 'should return false if issue is not done', ->
@@ -207,18 +211,24 @@ describe 'Issue', ->
           ]
         changelog:
           histories: [
+            author:
+              name: 'user2'
             created: '2015-01-22T11:19:48.633+0000'
             items: [
               field: 'assignee'
               to: 'user1'
             ]
           ,
+            author:
+              name: 'user1'
             created: '2015-01-24T11:19:48.633+0000'
             items: [
               field: 'status'
               toString: 'in progress'
             ]
           ,
+            author:
+              name: 'user1'
             created: '2015-01-26T11:19:48.633+0000'
             items: [
               field: 'assignee'
@@ -234,13 +244,13 @@ describe 'Issue', ->
       @issue.closed.should.equal '2015/01/26'
 
     it 'should initialise lead time', ->
-      @issue.leadTime.should.equal 6
+      @issue.leadTime.should.equal 518400
 
     it 'should initialise cycle time', ->
-      @issue.cycleTime.should.equal 2
+      @issue.cycleTime.should.equal 172800
 
     it 'should initialise deferred time', ->
-      @issue.deferredTime.should.equal 4
+      @issue.deferredTime.should.equal 345600
 
     it 'should initialise resolution', ->
       @issue.resolution.should.equal 'fixed'
@@ -302,18 +312,24 @@ describe 'Issue', ->
           ]
         changelog:
           histories: [
+            author:
+              name: 'user2'
             created: '2015-01-22T11:19:48.633+0000'
             items: [
               field: 'assignee'
               to: 'user1'
             ]
           ,
+            author:
+              name: 'user1'
             created: '2015-01-24T11:19:48.633+0000'
             items: [
               field: 'status'
               toString: 'in progress'
             ]
           ,
+            author:
+              name: 'user1'
             created: '2015-01-26T11:19:48.633+0000'
             items: [
               field: 'assignee'
@@ -357,3 +373,242 @@ describe 'Issue', ->
 
     it 'should initialise display closed date to equal the created date', ->
       @issue.closed.should.equal '2015/01/20'
+
+  describe '#checkCycleTime', ->
+    before ->
+      @Issue = Issue @statusMap, 300
+      immediatelyClosedIssue = (key, created, assigned, done, user) ->
+        key: key
+        fields:
+          created: created
+          status:
+            name: 'done'
+          issuetype:
+            name: 'bug'
+          priority:
+            name: 'p1'
+          resolution:
+            name: 'fixed'
+          labels: []
+          components: []
+        changelog:
+          histories: [
+            author:
+              name: 'user0'
+            created: assigned
+            items: [
+              field: 'assignee'
+              to: user
+            ]
+          ,
+            author:
+              name: user
+            created: done
+            items: [
+              field: 'assignee'
+              to: 'user0'
+            ,
+              field: 'status'
+              toString: 'done'
+            ]
+          ]
+      immediatelyClosedAndReopenedIssue = (
+        key
+        created
+        assigned
+        done
+        user
+        reopened
+        secondDone
+        secondUser
+      ) ->
+        key: key
+        fields:
+          created: created
+          status:
+            name: 'done'
+          issuetype:
+            name: 'bug'
+          priority:
+            name: 'p1'
+          resolution:
+            name: 'fixed'
+          labels: []
+          components: []
+        changelog:
+          histories: [
+            author:
+              name: 'user0'
+            created: assigned
+            items: [
+              field: 'assignee'
+              to: user
+            ]
+          ,
+            author:
+              name: user
+            created: done
+            items: [
+              field: 'assignee'
+              to: 'user0'
+            ,
+              field: 'status'
+              toString: 'done'
+            ]
+          ,
+            author:
+              name: 'user0'
+            created: reopened
+            items: [
+              field: 'assignee'
+              to: secondUser
+            ,
+              field: 'status'
+              toString: 'todo'
+            ]
+          ,
+            author:
+              name: secondUser
+            created: secondDone
+            items: [
+              field: 'assignee'
+              to: 'user0'
+            ,
+              field: 'status'
+              toString: 'done'
+            ]
+          ]
+      @issue1 = new @Issue immediatelyClosedIssue(
+        'key-1'
+        '2015-01-20T11:19:48.633+0000'
+        '2015-01-22T11:19:48.633+0000'
+        '2015-01-24T11:19:48.633+0000'
+        'user1'
+      )
+      @issue2 = new @Issue immediatelyClosedIssue(
+        'key-2'
+        '2015-01-20T11:19:48.633+0000'
+        '2015-01-23T11:19:48.633+0000'
+        '2015-01-25T11:19:48.633+0000'
+        'user2'
+      )
+      @issue3 = new @Issue immediatelyClosedIssue(
+        'key-3'
+        '2015-01-20T11:19:48.633+0000'
+        '2015-01-22T11:19:48.633+0000'
+        '2015-01-26T11:19:48.633+0000'
+        'user1'
+      )
+      @issue4 = new @Issue immediatelyClosedIssue(
+        'key-4'
+        '2015-01-20T11:19:48.633+0000'
+        '2015-01-24T11:19:48.633+0000'
+        '2015-01-28T11:19:48.633+0000'
+        'user2'
+      )
+      @issue5 = new @Issue immediatelyClosedIssue(
+        'key-5'
+        '2015-01-20T11:19:48.633+0000'
+        '2015-01-24T11:19:48.633+0000'
+        '2015-01-27T11:19:48.633+0000'
+        'user1'
+      )
+      @issue6 = new @Issue immediatelyClosedIssue(
+        'key-6'
+        '2015-01-20T11:19:48.633+0000'
+        '2015-01-25T11:19:48.633+0000'
+        '2015-01-30T11:19:48.633+0000'
+        'user2'
+      )
+      @issue7 = new @Issue immediatelyClosedAndReopenedIssue(
+        'key-7'
+        '2015-01-20T11:19:48.633+0000'
+        '2015-01-25T11:19:48.633+0000'
+        '2015-01-30T11:19:48.633+0000'
+        'user1'
+        '2015-01-31T11:19:48.633+0000'
+        '2015-02-02T11:19:48.633+0000'
+        'user1'
+      )
+      @issue8 = new @Issue immediatelyClosedAndReopenedIssue(
+        'key-8'
+        '2015-01-20T11:19:48.633+0000'
+        '2015-01-25T11:19:48.633+0000'
+        '2015-02-04T11:19:48.633+0000'
+        'user2'
+        '2015-02-05T11:19:48.633+0000'
+        '2015-02-08T11:19:48.633+0000'
+        'user1'
+      )
+
+# coffeelint: disable=max_line_length
+    it 'should not calculate a new cycle time if the closing user did not close an issue before it', ->
+# coffeelint: enable=max_line_length
+      @issue1.cycleTime.should.equal 0
+      @issue1.leadTime.should.equal 345600
+      @issue1.deferredTime.should.equal 345600
+      @issue1.checkCycleTime()
+      @issue1.cycleTime.should.equal 0
+      @issue1.leadTime.should.equal 345600
+      @issue1.deferredTime.should.equal 345600
+      @issue2.cycleTime.should.equal 0
+      @issue2.leadTime.should.equal 432000
+      @issue2.deferredTime.should.equal 432000
+      @issue2.checkCycleTime()
+      @issue2.cycleTime.should.equal 0
+      @issue2.leadTime.should.equal 432000
+      @issue2.deferredTime.should.equal 432000
+
+# coffeelint: disable=max_line_length
+    it 'should calculate a new cycle time if the current cycle time is less than the minimum trusted cycle time', ->
+# coffeelint: enable=max_line_length
+      @issue3.cycleTime.should.equal 0
+      @issue3.leadTime.should.equal 518400
+      @issue3.deferredTime.should.equal 518400
+      @issue3.checkCycleTime()
+      @issue3.cycleTime.should.equal 172800
+      @issue3.leadTime.should.equal 518400
+      @issue3.deferredTime.should.equal 345600
+      @issue4.cycleTime.should.equal 0
+      @issue4.leadTime.should.equal 691200
+      @issue4.deferredTime.should.equal 691200
+      @issue4.checkCycleTime()
+      @issue4.cycleTime.should.equal 259200
+      @issue4.leadTime.should.equal 691200
+      @issue4.deferredTime.should.equal 432000
+      @issue5.cycleTime.should.equal 0
+      @issue5.leadTime.should.equal 604800
+      @issue5.deferredTime.should.equal 604800
+      @issue5.checkCycleTime()
+      @issue5.cycleTime.should.equal 86400
+      @issue5.leadTime.should.equal 604800
+      @issue5.deferredTime.should.equal 518400
+      @issue6.cycleTime.should.equal 0
+      @issue6.leadTime.should.equal 864000
+      @issue6.deferredTime.should.equal 864000
+      @issue6.checkCycleTime()
+      @issue6.cycleTime.should.equal 172800
+      @issue6.leadTime.should.equal 864000
+      @issue6.deferredTime.should.equal 691200
+
+# coffeelint: disable=max_line_length
+    it 'should take into account cases where issues are reopened and fixed by the same user', ->
+# coffeelint: enable=max_line_length
+      @issue7.cycleTime.should.equal 0
+      @issue7.leadTime.should.equal 1123200
+      @issue7.deferredTime.should.equal 1123200
+      @issue7.checkCycleTime()
+      @issue7.cycleTime.should.equal 518400
+      @issue7.leadTime.should.equal 1123200
+      @issue7.deferredTime.should.equal 604800
+
+# coffeelint: disable=max_line_length
+    it 'should take into account cases where issues are reopened and fixed by a different user', ->
+# coffeelint: enable=max_line_length
+      @issue8.cycleTime.should.equal 0
+      @issue8.leadTime.should.equal 1641600
+      @issue8.deferredTime.should.equal 1641600
+      @issue8.checkCycleTime()
+      @issue8.cycleTime.should.equal 950400
+      @issue8.leadTime.should.equal 1641600
+      @issue8.deferredTime.should.equal 691200

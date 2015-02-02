@@ -20,11 +20,9 @@ _ = require 'underscore'
 #       incomplete: ' '
 #       width: 20
 #     bar.tick 0
-#   initialState: []
-#   stateAccumulator: (state, issue) ->
-#     state.push issue.key
+#   mapCallback: (issue) ->
 #     bar.tick()
-#     state
+#     issue.key
 
 module.exports = (params) ->
   queryParams = (startAt, maxResults, fields, expand) ->
@@ -56,7 +54,10 @@ module.exports = (params) ->
       issuesPromise = ->
         deferred = Q.defer()
         jsonStream = JSONStream.parse 'issues.*'
-        reduceStream = reduce params.stateAccumulator, params.initialState
+        reduceStream = reduce(
+          (issues, issue) -> issues.concat params.mapCallback issue
+          []
+        )
         reduceStream.once 'data', (issues) ->
           deferred.resolve issues
         query = request(
@@ -71,5 +72,5 @@ module.exports = (params) ->
         query.pipe(jsonStream).pipe(reduceStream)
         deferred.promise
       Q.all (issuesPromise() while remaining > 0)
-    .then (identicalStates) ->
-      identicalStates[0]
+    .then (issuesArrays) ->
+      _.flatten issuesArrays, true

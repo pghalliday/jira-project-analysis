@@ -3,7 +3,8 @@
     "days": "./jira-days.csv",
     "issues": "./jira-issues.csv"
   },
-  "days": 90,
+  "numberOfDays": 90,
+  "minimumTrustedCycleTime": 300,
   "project": [
     "MyProject"
   ],
