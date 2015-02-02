@@ -1,0 +1,3 @@
+set terminal dumb
+set datafile separator ','
+plot 'jira-issues.csv' using 8:6 with points title columnhead
