@@ -18,6 +18,7 @@ describe 'Day', ->
     @Day.columns.should.deep.equal
       date: 'date'
       open: 'open'
+      technicalDebt: 'technical debt'
       leadTime7DayMovingAverage: 'lead time (7 day moving average)'
       cycleTime7DayMovingAverage: 'cycle time (7 day moving average)'
       deferredTime7DayMovingAverage: 'deferred time (7 day moving average)'
@@ -27,6 +28,9 @@ describe 'Day', ->
 
   it 'should initialise open count', ->
     @day.open.should.equal 0
+
+  it 'should initialise technical debt', ->
+    @day.technicalDebt.should.equal 0
 
   it 'should initialise lead time 7 day moving average', ->
     expect(@day.leadTime7DayMovingAverage).to.be.null
@@ -47,9 +51,12 @@ describe 'Day', ->
         deferredTime: 2
         resolvedWithin: sinon.spy -> true
         openOnDate: sinon.spy -> false
+        technicalDebtOnDate: sinon.spy -> 0
       day.addIssue issue
       issue.openOnDate.should.have.been.calledOnce
       day.open.should.equal 0
+      issue.technicalDebtOnDate.should.have.been.calledOnce
+      day.technicalDebt.should.equal 0
       issue.resolvedWithin.should.have.been.calledOnce
       issue.resolvedWithin.should.have.been.calledWithExactly now, 7
       day.leadTime7DayMovingAverage.should.equal 5
@@ -61,9 +68,12 @@ describe 'Day', ->
         deferredTime: 2
         resolvedWithin: sinon.spy -> true
         openOnDate: sinon.spy -> false
+        technicalDebtOnDate: sinon.spy -> 0
       day.addIssue issue
       issue.openOnDate.should.have.been.calledOnce
       day.open.should.equal 0
+      issue.technicalDebtOnDate.should.have.been.calledOnce
+      day.technicalDebt.should.equal 0
       issue.resolvedWithin.should.have.been.calledOnce
       issue.resolvedWithin.should.have.been.calledWithExactly now, 7
       day.leadTime7DayMovingAverage.should.equal 4
@@ -71,27 +81,44 @@ describe 'Day', ->
       day.deferredTime7DayMovingAverage.should.equal 2
       issue =
         leadTime: 20
-        cycleTime: 7
-        deferredTime: 13
+        cycleTime: 15
+        deferredTime: 5
+        resolvedWithin: sinon.spy -> false
+        openOnDate: sinon.spy -> false
+        technicalDebtOnDate: sinon.spy -> 0
+      day.addIssue issue
+      issue.openOnDate.should.have.been.calledOnce
+      day.open.should.equal 0
+      issue.technicalDebtOnDate.should.have.been.calledOnce
+      day.technicalDebt.should.equal 0
+      issue.resolvedWithin.should.have.been.calledOnce
+      issue.resolvedWithin.should.have.been.calledWithExactly now, 7
+      day.leadTime7DayMovingAverage.should.equal 4
+      day.cycleTime7DayMovingAverage.should.equal 2
+      day.deferredTime7DayMovingAverage.should.equal 2
+      issue =
         resolvedWithin: sinon.spy -> false
         openOnDate: sinon.spy -> true
+        technicalDebtOnDate: sinon.spy -> 6
       day.addIssue issue
       issue.openOnDate.should.have.been.calledOnce
       day.open.should.equal 1
+      issue.technicalDebtOnDate.should.have.been.calledOnce
+      day.technicalDebt.should.equal 6
       issue.resolvedWithin.should.have.been.calledOnce
       issue.resolvedWithin.should.have.been.calledWithExactly now, 7
       day.leadTime7DayMovingAverage.should.equal 4
       day.cycleTime7DayMovingAverage.should.equal 2
       day.deferredTime7DayMovingAverage.should.equal 2
       issue =
-        leadTime: 20
-        cycleTime: 5
-        deferredTime: 15
         resolvedWithin: sinon.spy -> false
         openOnDate: sinon.spy -> true
+        technicalDebtOnDate: sinon.spy -> 5
       day.addIssue issue
       issue.openOnDate.should.have.been.calledOnce
       day.open.should.equal 2
+      issue.technicalDebtOnDate.should.have.been.calledOnce
+      day.technicalDebt.should.equal 11
       issue.resolvedWithin.should.have.been.calledOnce
       issue.resolvedWithin.should.have.been.calledWithExactly now, 7
       day.leadTime7DayMovingAverage.should.equal 4

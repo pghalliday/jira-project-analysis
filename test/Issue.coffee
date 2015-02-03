@@ -42,6 +42,9 @@ describe 'Issue', ->
       cycleTime: 'cycle time'
       deferredTime: 'deferred time'
       type: 'type'
+      parentStatus: 'parent status'
+      parentPriority: 'parent priority'
+      parentType: 'parent type'
       priority: 'priority'
       resolution: 'resolution'
 
@@ -76,9 +79,17 @@ describe 'Issue', ->
           status:
             name: 'unknownStatus'
           issuetype:
-            name: 'bug'
+            name: 'sub-task'
           priority:
             name: 'p1'
+          parent:
+            fields:
+              issuetype:
+                name: 'bug'
+              status:
+                name: 'todo'
+              priority:
+                name: 'p2'
           labels: [
             'label1'
             'label2'
@@ -114,13 +125,22 @@ describe 'Issue', ->
       expect(@issue.deferredTime).to.be.undefined
 
     it 'should initialise type', ->
-      @issue.type.should.equal 'bug'
+      @issue.type.should.equal 'sub-task'
 
     it 'should initialise priority', ->
       @issue.priority.should.equal 'p1'
 
     it 'should initialise resolution', ->
       expect(@issue.resolution).to.be.undefined
+
+    it 'should initialise parent status', ->
+      @issue.parentStatus.should.equal 'todo'
+
+    it 'should initialise parent priority', ->
+      @issue.parentPriority.should.equal 'p2'
+
+    it 'should initialise parent type', ->
+      @issue.parentType.should.equal 'bug'
 
     it 'should initialise labels', ->
       @issue.label_label1.should.equal 'yes'
@@ -144,7 +164,7 @@ describe 'Issue', ->
 
     it 'should append to Issue types', ->
       @Issue.types.should.deep.equal [
-        'bug'
+        'sub-task'
       ]
 
     it 'should append to Issue priorities', ->
@@ -162,6 +182,9 @@ describe 'Issue', ->
         cycleTime: 'cycle time'
         deferredTime: 'deferred time'
         type: 'type'
+        parentStatus: 'parent status'
+        parentPriority: 'parent priority'
+        parentType: 'parent type'
         priority: 'priority'
         resolution: 'resolution'
         label_label1: 'label:label1'
@@ -293,6 +316,15 @@ describe 'Issue', ->
 
     it 'should initialise resolution', ->
       @issue.resolution.should.equal 'fixed'
+
+    it 'should initialise parent status', ->
+      expect(@issue.parentStatus).to.be.undefined
+
+    it 'should initialise parent priority', ->
+      expect(@issue.parentPriority).to.be.undefined
+
+    it 'should initialise parent type', ->
+      expect(@issue.parentType).to.be.undefined
 
     it 'should append to Issue resolutions', ->
       @Issue.resolutions.should.deep.equal [

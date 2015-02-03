@@ -32,6 +32,7 @@ jqlFields = [
   'status'
   'labels'
   'components'
+  'parent'
 ].join ','
 
 progressBarFormat = '  querying :current/:total :elapseds [:bar] :percent :etas'

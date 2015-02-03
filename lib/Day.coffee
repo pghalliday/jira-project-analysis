@@ -5,6 +5,7 @@ module.exports = ->
     @columns =
       date: 'date'
       open: 'open'
+      technicalDebt: 'technical debt'
       leadTime7DayMovingAverage: 'lead time (7 day moving average)'
       cycleTime7DayMovingAverage: 'cycle time (7 day moving average)'
       deferredTime7DayMovingAverage: 'deferred time (7 day moving average)'
@@ -12,6 +13,7 @@ module.exports = ->
     constructor: (@_date) ->
       @date = @_date.format 'YYYY/MM/DD'
       @open = 0
+      @technicalDebt = 0
       @_leadTimes7Day = []
       @_cycleTimes7Day = []
       @_deferredTimes7Day = []
@@ -22,6 +24,7 @@ module.exports = ->
     addIssue: (issue) =>
       @_update7DayMovingAverages issue
       @_updateOpen issue
+      @_updateTechnicalDebt issue
 
     _update7DayMovingAverages: (issue) =>
       if issue.resolvedWithin(@_date, 7)
@@ -48,5 +51,8 @@ module.exports = ->
         ) / @_deferredTimes7Day.length
 
     _updateOpen: (issue) =>
-      if issue.openOnDate(@_date)
+      if issue.openOnDate @_date
         @open++
+
+    _updateTechnicalDebt: (issue) =>
+      @technicalDebt += issue.technicalDebtOnDate @_date

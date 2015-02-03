@@ -31,6 +31,9 @@ module.exports = (__statusMap, __userMap, __minimumTrustedCycleTime) ->
       cycleTime: 'cycle time'
       deferredTime: 'deferred time'
       type: 'type'
+      parentStatus: 'parent status'
+      parentPriority: 'parent priority'
+      parentType: 'parent type'
       priority: 'priority'
       resolution: 'resolution'
     @types = []
@@ -49,6 +52,11 @@ module.exports = (__statusMap, __userMap, __minimumTrustedCycleTime) ->
       @status = fields.status.name
       if @status not in __statuses and @status not in Issue.unknownStatuses
         Issue.unknownStatuses.push @status
+      if fields.parent
+        parentFields = fields.parent.fields
+        @parentStatus = parentFields.status.name
+        @parentPriority = parentFields.priority.name
+        @parentType = parentFields.issuetype.name
       @_processType fields.issuetype.name
       @_processPriority fields.priority.name
       @_processLabel label for label in fields.labels
@@ -120,9 +128,11 @@ module.exports = (__statusMap, __userMap, __minimumTrustedCycleTime) ->
           @_statuses.push
             date: date
             status: status
-# coffeelint: disable=max_line_length
-          if author in __developers and status in __doneStatuses and @_lastStatus not in __doneStatuses
-# coffeelint: enable=max_line_length
+          if (
+            author in __developers and
+            status in __doneStatuses and
+            @_lastStatus not in __doneStatuses
+          )
             @_closers.push author if author not in @_closers
             Issue._closers[author] = [] if not Issue._closers[author]
             closes = Issue._closers[author]
