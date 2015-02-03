@@ -56,7 +56,11 @@ Q()
       if statuses
         jql += jqlExclude 'status', statuses
     bar = undefined
-    Issue = issueClass config.statusMap, config.minimumTrustedCycleTime
+    Issue = issueClass(
+      config.statusMap
+      config.userMap
+      config.minimumTrustedCycleTime
+    )
     [
       Issue
       config.numberOfDays
@@ -83,6 +87,12 @@ Q()
           new Issue issue
     ]
   .spread (Issue, numberOfDays, outputDays, outputIssues, issues) ->
+    if Issue.unknownUsers.length
+      console.log 'WARNING: Unknown users'
+      console.log JSON.stringify Issue.unknownUsers, null, '  '
+    if Issue.unknownStatuses.length
+      console.log 'WARNING: Unknown statuses'
+      console.log JSON.stringify Issue.unknownStatuses, null, '  '
     Day = dayClass Issue
     days = (
       new Day(

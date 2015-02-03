@@ -19,8 +19,18 @@ describe 'Issue', ->
       done: [
         'done'
         'closed'
+      ],
+      ignore: [
       ]
-    @Issue = Issue @statusMap
+    @userMap =
+      developers: [
+        'user1'
+        'user2'
+      ]
+      ignore: [
+        'user0'
+      ]
+    @Issue = Issue @statusMap, @userMap
 
   it 'should export initial columns', ->
     @Issue.columns.should.deep.equal
@@ -50,14 +60,21 @@ describe 'Issue', ->
   it 'should export initial resolutions', ->
     @Issue.resolutions.should.deep.equal []
 
+  it 'should export initial unknown statuses', ->
+    @Issue.unknownStatuses.should.deep.equal []
+
+  it 'should export initial unknown users', ->
+    @Issue.unknownUsers.should.deep.equal []
+
   describe 'from new issue with no changelog', ->
     before ->
+      @Issue = Issue @statusMap, @userMap
       @rawIssue =
         key: 'key-1'
         fields:
           created: '2015-01-20T11:19:48.633+0000'
           status:
-            name: 'todo'
+            name: 'unknownStatus'
           issuetype:
             name: 'bug'
           priority:
@@ -79,7 +96,7 @@ describe 'Issue', ->
       @issue.key.should.equal 'key-1'
 
     it 'should initialise status', ->
-      @issue.status.should.equal 'todo'
+      @issue.status.should.equal 'unknownStatus'
 
     it 'should initialise display created date', ->
       @issue.created.should.equal '2015/01/20'
@@ -152,6 +169,11 @@ describe 'Issue', ->
         component_component1: 'component:component1'
         component_component2: 'component:component2'
 
+    it 'should append to Issue unknown statuses', ->
+      @Issue.unknownStatuses.should.deep.equal [
+        'unknownStatus'
+      ]
+
     describe '#hasLabel', ->
       it 'should return true if issue has label', ->
         @issue.hasLabel('label1').should.be.true
@@ -187,6 +209,7 @@ describe 'Issue', ->
 
   describe 'from closed issue', ->
     before ->
+      @Issue = Issue @statusMap, @userMap
       @rawIssue =
         key: 'key-2'
         fields:
@@ -212,15 +235,31 @@ describe 'Issue', ->
         changelog:
           histories: [
             author:
-              name: 'user2'
-            created: '2015-01-22T11:19:48.633+0000'
+              name: 'user0'
+            created: '2015-01-21T11:19:48.633+0000'
             items: [
-              field: 'assignee'
-              to: 'user1'
+              field: 'status'
+              toString: 'unknownStatus1'
             ]
           ,
             author:
               name: 'user1'
+            created: '2015-01-21T11:19:48.633+0000'
+            items: [
+              field: 'status'
+              toString: 'unknownStatus2'
+            ]
+          ,
+            author:
+              name: 'unknownUser1'
+            created: '2015-01-22T11:19:48.633+0000'
+            items: [
+              field: 'assignee'
+              to: 'unknownUser2'
+            ]
+          ,
+            author:
+              name: 'unknownUser2'
             created: '2015-01-24T11:19:48.633+0000'
             items: [
               field: 'status'
@@ -228,11 +267,11 @@ describe 'Issue', ->
             ]
           ,
             author:
-              name: 'user1'
+              name: 'unknownUser2'
             created: '2015-01-26T11:19:48.633+0000'
             items: [
               field: 'assignee'
-              to: 'user2'
+              to: 'unknownUser3'
             ,
               field: 'status'
               toString: 'done'
@@ -258,6 +297,19 @@ describe 'Issue', ->
     it 'should append to Issue resolutions', ->
       @Issue.resolutions.should.deep.equal [
         'fixed'
+      ]
+
+    it 'should append to Issue unknown users', ->
+      @Issue.unknownUsers.should.deep.equal [
+        'unknownUser1'
+        'unknownUser2'
+        'unknownUser3'
+      ]
+
+    it 'should append to Issue unknown statuses', ->
+      @Issue.unknownStatuses.should.deep.equal [
+        'unknownStatus1'
+        'unknownStatus2'
       ]
 
     describe '#openOnDate', ->
@@ -289,6 +341,7 @@ describe 'Issue', ->
 
   describe 'from closed issue with missing resolutiondate', ->
     before ->
+      @Issue = Issue @statusMap, @userMap
       @rawIssue =
         key: 'key-2'
         fields:
@@ -348,6 +401,7 @@ describe 'Issue', ->
   describe 'from closed issue with missing resolutiondate and no status changes', ->
 # coffeelint: enable=max_line_length
     before ->
+      @Issue = Issue @statusMap, @userMap
       @rawIssue =
         key: 'key-2'
         fields:
@@ -376,7 +430,7 @@ describe 'Issue', ->
 
   describe '#checkCycleTime', ->
     before ->
-      @Issue = Issue @statusMap, 300
+      @Issue = Issue @statusMap, @userMap, 300
       immediatelyClosedIssue = (key, created, assigned, done, user) ->
         key: key
         fields:
@@ -540,6 +594,20 @@ describe 'Issue', ->
         '2015-02-08T11:19:48.633+0000'
         'user1'
       )
+      @issue9 = new @Issue immediatelyClosedIssue(
+        'key-9'
+        '2015-01-20T11:19:48.633+0000'
+        '2015-01-25T11:19:48.633+0000'
+        '2015-01-30T11:19:48.633+0000'
+        'user0'
+      )
+      @issue10 = new @Issue immediatelyClosedIssue(
+        'key-10'
+        '2015-01-20T11:19:48.633+0000'
+        '2015-01-25T11:19:48.633+0000'
+        '2015-01-31T11:19:48.633+0000'
+        'user0'
+      )
 
 # coffeelint: disable=max_line_length
     it 'should not calculate a new cycle time if the closing user did not close an issue before it', ->
@@ -612,3 +680,19 @@ describe 'Issue', ->
       @issue8.cycleTime.should.equal 950400
       @issue8.leadTime.should.equal 1641600
       @issue8.deferredTime.should.equal 691200
+
+    it 'should not count cases where an issue is closed by a non developer', ->
+      @issue9.cycleTime.should.equal 0
+      @issue9.leadTime.should.equal 864000
+      @issue9.deferredTime.should.equal 864000
+      @issue9.checkCycleTime()
+      @issue9.cycleTime.should.equal 0
+      @issue9.leadTime.should.equal 864000
+      @issue9.deferredTime.should.equal 864000
+      @issue10.cycleTime.should.equal 0
+      @issue10.leadTime.should.equal 950400
+      @issue10.deferredTime.should.equal 950400
+      @issue10.checkCycleTime()
+      @issue10.cycleTime.should.equal 0
+      @issue10.leadTime.should.equal 950400
+      @issue10.deferredTime.should.equal 950400

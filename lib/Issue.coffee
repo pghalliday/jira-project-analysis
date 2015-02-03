@@ -4,13 +4,22 @@ moment = require 'moment'
 labelFieldName = (label) -> 'label_' + label
 componentFieldName = (component) -> 'component_' + component
 
-module.exports = (__statusMap, __minimumTrustedCycleTime) ->
+module.exports = (__statusMap, __userMap, __minimumTrustedCycleTime) ->
   __minimumTrustedCycleTime = __minimumTrustedCycleTime or 0
   __initialStatus = __statusMap.todo[0]
   __openStatuses = __statusMap.todo.concat __statusMap.inProgress
   __todoStatuses = __statusMap.todo
   __inProgressStatuses = __statusMap.inProgress
   __doneStatuses = __statusMap.done
+  __statuses = __statusMap.todo.concat(
+    __statusMap.inProgress
+    __statusMap.done
+    __statusMap.ignore
+  )
+  __developers = __userMap.developers
+  __users = __userMap.developers.concat(
+    __userMap.ignore
+  )
 
   class Issue
     @columns =
@@ -29,13 +38,17 @@ module.exports = (__statusMap, __minimumTrustedCycleTime) ->
     @resolutions = []
     @labels = []
     @components = []
-    @closers = {}
+    @unknownUsers = []
+    @unknownStatuses = []
+    @_closers = {}
 
     constructor: (rawIssue) ->
       @key = rawIssue.key
       fields = rawIssue.fields
       changelog = rawIssue.changelog
       @status = fields.status.name
+      if @status not in __statuses and @status not in Issue.unknownStatuses
+        Issue.unknownStatuses.push @status
       @_processType fields.issuetype.name
       @_processPriority fields.priority.name
       @_processLabel label for label in fields.labels
@@ -93,16 +106,26 @@ module.exports = (__statusMap, __minimumTrustedCycleTime) ->
       ) for item in change.items
 
     _processChangeItem: (date, author, item) =>
+      if author not in __users and author not in Issue.unknownUsers
+        Issue.unknownUsers.push author
       switch item.field
+        when 'assignee'
+          to = item.to
+          if to not in __users and to not in Issue.unknownUsers
+            Issue.unknownUsers.push to
         when 'status'
           status = item.toString
+          if status not in __statuses and status not in Issue.unknownStatuses
+            Issue.unknownStatuses.push status
           @_statuses.push
             date: date
             status: status
-          if status in __doneStatuses and @_lastStatus not in __doneStatuses
+# coffeelint: disable=max_line_length
+          if author in __developers and status in __doneStatuses and @_lastStatus not in __doneStatuses
+# coffeelint: enable=max_line_length
             @_closers.push author if author not in @_closers
-            Issue.closers[author] = [] if not Issue.closers[author]
-            closes = Issue.closers[author]
+            Issue._closers[author] = [] if not Issue._closers[author]
+            closes = Issue._closers[author]
             close =
               key: @key
               unixTime: date.unix()
@@ -153,7 +176,7 @@ module.exports = (__statusMap, __minimumTrustedCycleTime) ->
           @cycleTime = 0
           for closer in @_closers
             lastClose = null
-            for close in Issue.closers[closer]
+            for close in Issue._closers[closer]
               if close.key is @key
                 if lastClose
                   @cycleTime += close.unixTime - lastClose.unixTime
