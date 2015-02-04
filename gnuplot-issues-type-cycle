@@ -1,3 +1,5 @@
+set macros
 set terminal dumb
 set datafile separator ','
-plot 'jira-issues.csv' using 8:6 with points title columnhead
+range = "using `./column-index.sh jira-issues.csv type`:`./column-index.sh jira-issues.csv "cycle time"`"
+plot 'jira-issues.csv' @range with points title columnhead

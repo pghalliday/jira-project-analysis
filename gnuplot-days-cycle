@@ -1,3 +1,5 @@
+set macros
 set terminal dumb
 set datafile separator ','
-plot 'jira-days.csv' using 0:5 with lines title columnhead
+range = "using 0:`./column-index.sh jira-days.csv "cycle time \(7 day moving average\)"`"
+plot 'jira-days.csv' @range with lines title columnhead
