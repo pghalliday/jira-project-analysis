@@ -1,5 +1,0 @@
-set macros
-set terminal dumb
-set datafile separator ','
-range = "using `./column-index.sh jira-issues.csv "deferred time"`:`./column-index.sh jira-issues.csv "cycle time"`"
-plot 'jira-issues.csv' @range with points title columnhead
