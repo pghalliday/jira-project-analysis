@@ -31,6 +31,17 @@
       "Closed",
       "Resolved",
       "Done"
+    ],
+    "ignore": [
+      "Parked"
+    ]
+  },
+  "userMap": {
+    "developers": [
+      "a.developer"
+    ],
+    "ignore": [
+      "a.manager"
     ]
   },
   "jira": {
