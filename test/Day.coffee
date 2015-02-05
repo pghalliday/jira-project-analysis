@@ -123,24 +123,25 @@ describe 'Day', ->
     it 'should correctly accumulate lead time 7 day moving average', ->
       @day.leadTimeMA7.should.equal 5
       @day['type:bug:leadTimeMA7'].should.equal 5
-      @day['type:story:leadTimeMA7'].should.equal 0
-      @day['type:subtask:leadTimeMA7'].should.equal 0
+      expect(@day['type:story:leadTimeMA7']).to.be.null
+      expect(@day['type:subtask:leadTimeMA7']).to.be.null
 
     it 'should correctly accumulate cycle time 7 day moving average', ->
       @day.cycleTimeMA7.should.equal 3
       @day['type:bug:cycleTimeMA7'].should.equal 3
-      @day['type:story:cycleTimeMA7'].should.equal 0
-      @day['type:subtask:cycleTimeMA7'].should.equal 0
+      expect(@day['type:story:cycleTimeMA7']).to.be.null
+      expect(@day['type:subtask:cycleTimeMA7']).to.be.null
 
     it 'should correctly accumulate deferred time 7 day moving average', ->
       @day.deferredTimeMA7.should.equal 2
       @day['type:bug:deferredTimeMA7'].should.equal 2
-      @day['type:story:deferredTimeMA7'].should.equal 0
-      @day['type:subtask:deferredTimeMA7'].should.equal 0
+      expect(@day['type:story:deferredTimeMA7']).to.be.null
+      expect(@day['type:subtask:deferredTimeMA7']).to.be.null
 
     describe '2nd #addIssue', ->
       before ->
         @issue =
+          type: 'story'
           leadTime: 3
           cycleTime: 1
           deferredTime: 2
@@ -151,22 +152,38 @@ describe 'Day', ->
 
       it 'should correctly accumulate open count', ->
         @day.open.should.equal 0
+        @day['type:bug:open'].should.equal 0
+        @day['type:story:open'].should.equal 0
+        @day['type:subtask:open'].should.equal 0
 
       it 'should correctly accumulate technical debt', ->
         @day.technicalDebt.should.equal 0
+        @day['type:bug:technicalDebt'].should.equal 0
+        @day['type:story:technicalDebt'].should.equal 0
+        @day['type:subtask:technicalDebt'].should.equal 0
 
       it 'should correctly accumulate lead time 7 day moving average', ->
         @day.leadTimeMA7.should.equal 4
+        @day['type:bug:leadTimeMA7'].should.equal 5
+        @day['type:story:leadTimeMA7'].should.equal 3
+        expect(@day['type:subtask:leadTimeMA7']).to.be.null
 
       it 'should correctly accumulate cycle time 7 day moving average', ->
         @day.cycleTimeMA7.should.equal 2
+        @day['type:bug:cycleTimeMA7'].should.equal 3
+        @day['type:story:cycleTimeMA7'].should.equal 1
+        expect(@day['type:subtask:cycleTimeMA7']).to.be.null
 
       it 'should correctly accumulate deferred time 7 day moving average', ->
         @day.deferredTimeMA7.should.equal 2
+        @day['type:bug:deferredTimeMA7'].should.equal 2
+        @day['type:story:deferredTimeMA7'].should.equal 2
+        expect(@day['type:subtask:deferredTimeMA7']).to.be.null
 
       describe '3rd #addIssue', ->
         before ->
           @issue =
+            type: 'bug'
             leadTime: 20
             cycleTime: 15
             deferredTime: 5
@@ -177,22 +194,39 @@ describe 'Day', ->
 
         it 'should correctly accumulate open count', ->
           @day.open.should.equal 0
+          @day['type:bug:open'].should.equal 0
+          @day['type:story:open'].should.equal 0
+          @day['type:subtask:open'].should.equal 0
 
         it 'should correctly accumulate technical debt', ->
           @day.technicalDebt.should.equal 0
+          @day['type:bug:technicalDebt'].should.equal 0
+          @day['type:story:technicalDebt'].should.equal 0
+          @day['type:subtask:technicalDebt'].should.equal 0
 
         it 'should correctly accumulate lead time 7 day moving average', ->
           @day.leadTimeMA7.should.equal 4
+          @day['type:bug:leadTimeMA7'].should.equal 5
+          @day['type:story:leadTimeMA7'].should.equal 3
+          expect(@day['type:subtask:leadTimeMA7']).to.be.null
 
         it 'should correctly accumulate cycle time 7 day moving average', ->
           @day.cycleTimeMA7.should.equal 2
+          @day['type:bug:cycleTimeMA7'].should.equal 3
+          @day['type:story:cycleTimeMA7'].should.equal 1
+          expect(@day['type:subtask:cycleTimeMA7']).to.be.null
 
         it 'should correctly accumulate deferred time 7 day moving average', ->
           @day.deferredTimeMA7.should.equal 2
+          @day['type:bug:deferredTimeMA7'].should.equal 2
+          @day['type:story:deferredTimeMA7'].should.equal 2
+          expect(@day['type:subtask:deferredTimeMA7']).to.be.null
 
         describe '4th #addIssue', ->
           before ->
             @issue =
+              type: 'subtask'
+              parentType: 'bug'
               resolvedDays: -> 7
               openOnDate: -> true
               technicalDebtOnDate: -> 6
@@ -200,24 +234,40 @@ describe 'Day', ->
 
           it 'should correctly accumulate open count', ->
             @day.open.should.equal 1
+            @day['type:bug:open'].should.equal 1
+            @day['type:story:open'].should.equal 0
+            @day['type:subtask:open'].should.equal 1
 
           it 'should correctly accumulate technical debt', ->
             @day.technicalDebt.should.equal 6
+            @day['type:bug:technicalDebt'].should.equal 6
+            @day['type:story:technicalDebt'].should.equal 0
+            @day['type:subtask:technicalDebt'].should.equal 6
 
           it 'should correctly accumulate lead time 7 day moving average', ->
             @day.leadTimeMA7.should.equal 4
+            @day['type:bug:leadTimeMA7'].should.equal 5
+            @day['type:story:leadTimeMA7'].should.equal 3
+            expect(@day['type:subtask:leadTimeMA7']).to.be.null
 
           it 'should correctly accumulate cycle time 7 day moving average', ->
             @day.cycleTimeMA7.should.equal 2
+            @day['type:bug:cycleTimeMA7'].should.equal 3
+            @day['type:story:cycleTimeMA7'].should.equal 1
+            expect(@day['type:subtask:cycleTimeMA7']).to.be.null
 
 # coffeelint: disable=max_line_length
           it 'should correctly accumulate deferred time 7 day moving average', ->
 # coffeelint: enable=max_line_length
             @day.deferredTimeMA7.should.equal 2
+            @day['type:bug:deferredTimeMA7'].should.equal 2
+            @day['type:story:deferredTimeMA7'].should.equal 2
+            expect(@day['type:subtask:deferredTimeMA7']).to.be.null
 
           describe '5th #addIssue', ->
             before ->
               @issue =
+                type: 'bug'
                 resolvedDays: -> 7
                 openOnDate: -> true
                 technicalDebtOnDate: -> 5
@@ -225,17 +275,32 @@ describe 'Day', ->
 
             it 'should correctly accumulate open count', ->
               @day.open.should.equal 2
+              @day['type:bug:open'].should.equal 2
+              @day['type:story:open'].should.equal 0
+              @day['type:subtask:open'].should.equal 1
 
             it 'should correctly accumulate technical debt', ->
               @day.technicalDebt.should.equal 11
+              @day['type:bug:technicalDebt'].should.equal 11
+              @day['type:story:technicalDebt'].should.equal 0
+              @day['type:subtask:technicalDebt'].should.equal 6
 
             it 'should correctly accumulate lead time 7 day moving average', ->
               @day.leadTimeMA7.should.equal 4
+              @day['type:bug:leadTimeMA7'].should.equal 5
+              @day['type:story:leadTimeMA7'].should.equal 3
+              expect(@day['type:subtask:leadTimeMA7']).to.be.null
 
             it 'should correctly accumulate cycle time 7 day moving average', ->
               @day.cycleTimeMA7.should.equal 2
+              @day['type:bug:cycleTimeMA7'].should.equal 3
+              @day['type:story:cycleTimeMA7'].should.equal 1
+              expect(@day['type:subtask:cycleTimeMA7']).to.be.null
 
 # coffeelint: disable=max_line_length
             it 'should correctly accumulate deferred time 7 day moving average', ->
 # coffeelint: enable=max_line_length
               @day.deferredTimeMA7.should.equal 2
+              @day['type:bug:deferredTimeMA7'].should.equal 2
+              @day['type:story:deferredTimeMA7'].should.equal 2
+              expect(@day['type:subtask:deferredTimeMA7']).to.be.null
