@@ -208,6 +208,8 @@ module.exports = (__statusMap, __userMap, __minimumTrustedCycleTime) ->
       else
         0
 
-    resolvedWithin: (date, days) =>
-      start = moment(date).subtract days, 'days'
-      if @_closed then @_closed.isBetween(start, date) else false
+    resolvedDays: (date) =>
+      if not @_closed
+        null
+      else
+        date.diff @_closed, 'days'

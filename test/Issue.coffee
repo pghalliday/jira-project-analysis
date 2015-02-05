@@ -225,10 +225,10 @@ describe 'Issue', ->
         date = moment '2015-01-22T11:19:48.633+0000'
         @issue.technicalDebtOnDate(date).should.equal 172800
 
-    describe '#resolvedWithin', ->
-      it 'should return false if issue is not done', ->
+    describe '#resolvedDays', ->
+      it 'should return null', ->
         date = moment '2015-01-22T11:19:48.633+0000'
-        @issue.resolvedWithin(date, 7).should.be.false
+        expect(@issue.resolvedDays(date)).to.be.null
 
   describe 'from closed issue', ->
     before ->
@@ -362,14 +362,22 @@ describe 'Issue', ->
         date = moment '2015-01-27T11:19:48.633+0000'
         @issue.technicalDebtOnDate(date).should.equal 0
 
-    describe '#resolvedWithin', ->
-      it 'should return false if resolved more than x days before date', ->
-        date = moment '2015-01-30T11:19:48.633+0000'
-        @issue.resolvedWithin(date, 3).should.be.false
+    describe '#resolvedDays', ->
+      it 'should return zero if resolved on the given date', ->
+        date = moment '2015-01-26T11:19:48.633+0000'
+        @issue.resolvedDays(date).should.equal 0
 
-      it 'should return true if resolved less than x days before date', ->
+# coffeelint: disable=max_line_length
+      it 'should return number of days since resolved for a date after resolution', ->
+# coffeelint: enable=max_line_length
         date = moment '2015-01-29T11:19:48.633+0000'
-        @issue.resolvedWithin(date, 3).should.be.false
+        @issue.resolvedDays(date).should.equal 3
+
+# coffeelint: disable=max_line_length
+      it 'should return negative number of days to resolved for a date before resolution', ->
+# coffeelint: enable=max_line_length
+        date = moment '2015-01-23T11:19:48.633+0000'
+        @issue.resolvedDays(date).should.equal -3
 
   describe 'from closed issue with missing resolutiondate', ->
     before ->
