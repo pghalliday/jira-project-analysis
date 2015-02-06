@@ -35,7 +35,8 @@ jqlFields = [
   'parent'
 ].join ','
 
-progressBarFormat = '  querying :current/:total :elapseds [:bar] :percent :etas'
+progressBarFormat = (action) ->
+  '  ' + action + ' :current/:total :elapseds [:bar] :percent :etas'
 
 Q()
   .then ->
@@ -77,7 +78,7 @@ Q()
         expand: 'changelog'
         maxResults: 50
         onTotal: (total) ->
-          bar = new Progress progressBarFormat,
+          bar = new Progress progressBarFormat('querying'),
             total: total
             complete: '='
             incomplete: ' '
@@ -100,7 +101,14 @@ Q()
         moment().subtract(day, 'days')
       ) for day in [(numberOfDays - 1)..0]
     )
+    bar = new Progress progressBarFormat('processing'),
+      total: issues.length
+      complete: '='
+      incomplete: ' '
+      width: 20
+    bar.tick 0
     for issue in issues
+      bar.tick()
       issue.checkCycleTime()
       (day.addIssue issue) for day in days
     [outputDays, outputIssues].concat [

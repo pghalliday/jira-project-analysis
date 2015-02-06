@@ -2,14 +2,15 @@ _ = require 'underscore'
 
 __movingAverageAccumulator = (field, days) ->
   (state, issueStats) ->
-    if issueStats and issueStats.resolvedDays in [0..(days - 1)]
-      state.push issueStats[field]
-    if not state.length
-      null
+    if issueStats
+      resolvedDays = issueStats.resolvedDays
+      if resolvedDays >= 0 and resolvedDays < days
+        state.total += issueStats[field]
+        state.count++
+    if state.count
+      state.total / state.count
     else
-      (
-        _.reduce state, (total, value) -> total + value
-      ) / state.length
+      null
 
 __fields =
   open:
@@ -28,22 +29,28 @@ __fields =
       state.total
   leadTimeMA7:
     description: 'lead time MA7'
-    initialState: -> []
+    initialState: ->
+      total: 0
+      count: 0
     accumulator: __movingAverageAccumulator 'leadTime', 7
   cycleTimeMA7:
     description: 'cycle time MA7'
-    initialState: -> []
+    initialState: ->
+      total: 0
+      count: 0
     accumulator: __movingAverageAccumulator 'cycleTime', 7
   deferredTimeMA7:
     description: 'deferred time MA7'
-    initialState: -> []
+    initialState: ->
+      total: 0
+      count: 0
     accumulator: __movingAverageAccumulator 'deferredTime', 7
 
-__typeField = (type, field) ->
-  'type:' + type + ':' + field
+__field = (filter, name, field) ->
+  filter + ':' + name + ':' + field
 
-__typeDescription = (type, description) ->
-  'type:' + type + ' ' + description
+__description = (filter, name, description) ->
+  filter + ':' + name + ' ' + description
 
 module.exports = (Issue) ->
   class Day
@@ -54,7 +61,14 @@ module.exports = (Issue) ->
       description = params.description
       @columns[field] = description
       for type in Issue.types
-        @columns[__typeField type, field] = __typeDescription type, description
+        @columns[__field 'type', type, field] =
+          __description 'type', type, description
+      for priority in Issue.priorities
+        @columns[__field 'priority', priority, field] =
+          __description 'priority', priority, description
+      for component in Issue.components
+        @columns[__field 'component', component, field] =
+          __description 'component', component, description
 
     constructor: (@_date) ->
       @date = @_date.format 'YYYY/MM/DD'
@@ -65,7 +79,15 @@ module.exports = (Issue) ->
         @_fieldStates[field] = initialState()
         @[field] = accumulator @_fieldStates[field]
         for type in Issue.types
-          filteredField = __typeField type, field
+          filteredField = __field 'type', type, field
+          @_fieldStates[filteredField] = initialState()
+          @[filteredField] = accumulator @_fieldStates[filteredField]
+        for priority in Issue.priorities
+          filteredField = __field 'priority', priority, field
+          @_fieldStates[filteredField] = initialState()
+          @[filteredField] = accumulator @_fieldStates[filteredField]
+        for component in Issue.components
+          filteredField = __field 'component', component, field
           @_fieldStates[filteredField] = initialState()
           @[filteredField] = accumulator @_fieldStates[filteredField]
 
@@ -82,7 +104,21 @@ module.exports = (Issue) ->
         @[field] = accumulator @_fieldStates[field], issueStats
         for type in Issue.types
           if type is issue.type or type is issue.parentType
-            filteredField = __typeField type, field
+            filteredField = __field 'type', type, field
+            @[filteredField] = accumulator(
+              @_fieldStates[filteredField]
+              issueStats
+            )
+        for priority in Issue.priorities
+          if priority is issue.priority or priority is issue.parentPriority
+            filteredField = __field 'priority', priority, field
+            @[filteredField] = accumulator(
+              @_fieldStates[filteredField]
+              issueStats
+            )
+        for component in Issue.components
+          if issue.affectsComponent component
+            filteredField = __field 'component', component, field
             @[filteredField] = accumulator(
               @_fieldStates[filteredField]
               issueStats

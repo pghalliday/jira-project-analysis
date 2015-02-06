@@ -95,7 +95,7 @@ module.exports = (__statusMap, __userMap, __minimumTrustedCycleTime) ->
       Issue.columns[field] = 'component:' + component
       components.push component if components.indexOf component is -1
 
-    affectsComponent: (component) => @[componentFieldName component] == 'yes'
+    affectsComponent: (component) => @[componentFieldName component] is 'yes'
 
     _processCreated: (initialStatus, date) =>
       @_created = date

@@ -5,6 +5,7 @@
   "scripts": {
     "lint": "coffeelint -f coffeelint.json test/**.coffee lib/**.coffee",
     "unit-test": "mocha",
+    "profile": "mocha --prof",
     "coverage": "multi='spec=- html-cov=coverage.html mocha-cov-reporter=-' mocha --require coffee-coverage/register -R mocha-multi",
     "pretest": "npm run lint",
     "test": "npm run coverage"

@@ -18,9 +18,9 @@ describe 'Day', ->
         'subtask'
       ]
       priorities: [
+        'unprioritized'
         'p1'
         'p2'
-        'p3'
       ]
       components: [
         'component1'
@@ -37,6 +37,7 @@ describe 'Day', ->
       leadTimeMA7: 'lead time MA7'
       cycleTimeMA7: 'cycle time MA7'
       deferredTimeMA7: 'deferred time MA7'
+# coffeelint: disable=max_line_length
       'type:bug:open': 'type:bug open'
       'type:bug:technicalDebt': 'type:bug technical debt'
       'type:bug:leadTimeMA7': 'type:bug lead time MA7'
@@ -52,6 +53,37 @@ describe 'Day', ->
       'type:subtask:leadTimeMA7': 'type:subtask lead time MA7'
       'type:subtask:cycleTimeMA7': 'type:subtask cycle time MA7'
       'type:subtask:deferredTimeMA7': 'type:subtask deferred time MA7'
+      'priority:unprioritized:open': 'priority:unprioritized open'
+      'priority:unprioritized:technicalDebt': 'priority:unprioritized technical debt'
+      'priority:unprioritized:leadTimeMA7': 'priority:unprioritized lead time MA7'
+      'priority:unprioritized:cycleTimeMA7': 'priority:unprioritized cycle time MA7'
+      'priority:unprioritized:deferredTimeMA7': 'priority:unprioritized deferred time MA7'
+      'priority:p1:open': 'priority:p1 open'
+      'priority:p1:technicalDebt': 'priority:p1 technical debt'
+      'priority:p1:leadTimeMA7': 'priority:p1 lead time MA7'
+      'priority:p1:cycleTimeMA7': 'priority:p1 cycle time MA7'
+      'priority:p1:deferredTimeMA7': 'priority:p1 deferred time MA7'
+      'priority:p2:open': 'priority:p2 open'
+      'priority:p2:technicalDebt': 'priority:p2 technical debt'
+      'priority:p2:leadTimeMA7': 'priority:p2 lead time MA7'
+      'priority:p2:cycleTimeMA7': 'priority:p2 cycle time MA7'
+      'priority:p2:deferredTimeMA7': 'priority:p2 deferred time MA7'
+      'component:component1:open': 'component:component1 open'
+      'component:component1:technicalDebt': 'component:component1 technical debt'
+      'component:component1:leadTimeMA7': 'component:component1 lead time MA7'
+      'component:component1:cycleTimeMA7': 'component:component1 cycle time MA7'
+      'component:component1:deferredTimeMA7': 'component:component1 deferred time MA7'
+      'component:component2:open': 'component:component2 open'
+      'component:component2:technicalDebt': 'component:component2 technical debt'
+      'component:component2:leadTimeMA7': 'component:component2 lead time MA7'
+      'component:component2:cycleTimeMA7': 'component:component2 cycle time MA7'
+      'component:component2:deferredTimeMA7': 'component:component2 deferred time MA7'
+      'component:component3:open': 'component:component3 open'
+      'component:component3:technicalDebt': 'component:component3 technical debt'
+      'component:component3:leadTimeMA7': 'component:component3 lead time MA7'
+      'component:component3:cycleTimeMA7': 'component:component3 cycle time MA7'
+      'component:component3:deferredTimeMA7': 'component:component3 deferred time MA7'
+# coffeelint: enable=max_line_length
 
   it 'should initialise display date', ->
     @day.date.should.equal @moment.format 'YYYY/MM/DD'
@@ -61,30 +93,60 @@ describe 'Day', ->
     @day['type:bug:open'].should.equal 0
     @day['type:story:open'].should.equal 0
     @day['type:subtask:open'].should.equal 0
+    @day['priority:unprioritized:open'].should.equal 0
+    @day['priority:p1:open'].should.equal 0
+    @day['priority:p2:open'].should.equal 0
+    @day['component:component1:open'].should.equal 0
+    @day['component:component2:open'].should.equal 0
+    @day['component:component3:open'].should.equal 0
 
   it 'should initialise technical debt', ->
     @day.technicalDebt.should.equal 0
     @day['type:bug:technicalDebt'].should.equal 0
     @day['type:story:technicalDebt'].should.equal 0
     @day['type:subtask:technicalDebt'].should.equal 0
+    @day['priority:unprioritized:technicalDebt'].should.equal 0
+    @day['priority:p1:technicalDebt'].should.equal 0
+    @day['priority:p2:technicalDebt'].should.equal 0
+    @day['component:component1:technicalDebt'].should.equal 0
+    @day['component:component2:technicalDebt'].should.equal 0
+    @day['component:component3:technicalDebt'].should.equal 0
 
   it 'should initialise lead time 7 day moving average', ->
     expect(@day.leadTimeMA7).to.be.null
     expect(@day['type:bug:leadTimeMA7']).to.be.null
     expect(@day['type:story:leadTimeMA7']).to.be.null
     expect(@day['type:subtask:leadTimeMA7']).to.be.null
+    expect(@day['priority:unprioritized:leadTimeMA7']).to.be.null
+    expect(@day['priority:p1:leadTimeMA7']).to.be.null
+    expect(@day['priority:p2:leadTimeMA7']).to.be.null
+    expect(@day['component:component1:leadTimeMA7']).to.be.null
+    expect(@day['component:component2:leadTimeMA7']).to.be.null
+    expect(@day['component:component3:leadTimeMA7']).to.be.null
 
   it 'should initialise cycle time 7 day moving average', ->
     expect(@day.cycleTimeMA7).to.be.null
     expect(@day['type:bug:cycleTimeMA7']).to.be.null
     expect(@day['type:story:cycleTimeMA7']).to.be.null
     expect(@day['type:subtask:cycleTimeMA7']).to.be.null
+    expect(@day['priority:unprioritized:cycleTimeMA7']).to.be.null
+    expect(@day['priority:p1:cycleTimeMA7']).to.be.null
+    expect(@day['priority:p2:cycleTimeMA7']).to.be.null
+    expect(@day['component:component1:cycleTimeMA7']).to.be.null
+    expect(@day['component:component2:cycleTimeMA7']).to.be.null
+    expect(@day['component:component3:cycleTimeMA7']).to.be.null
 
   it 'should initialise deferred time 7 day moving average', ->
     expect(@day.deferredTimeMA7).to.be.null
     expect(@day['type:bug:deferredTimeMA7']).to.be.null
     expect(@day['type:story:deferredTimeMA7']).to.be.null
     expect(@day['type:subtask:deferredTimeMA7']).to.be.null
+    expect(@day['priority:unprioritized:deferredTimeMA7']).to.be.null
+    expect(@day['priority:p1:deferredTimeMA7']).to.be.null
+    expect(@day['priority:p2:deferredTimeMA7']).to.be.null
+    expect(@day['component:component1:deferredTimeMA7']).to.be.null
+    expect(@day['component:component2:deferredTimeMA7']).to.be.null
+    expect(@day['component:component3:deferredTimeMA7']).to.be.null
 
   describe '1st #addIssue', ->
     before ->
@@ -92,6 +154,11 @@ describe 'Day', ->
       @day = new @Day @now
       @issue =
         type: 'bug'
+        priority: 'p1'
+        affectsComponent: (component) -> component in [
+          'component1'
+          'component3'
+        ]
         leadTime: 5
         cycleTime: 3
         deferredTime: 2
@@ -113,35 +180,70 @@ describe 'Day', ->
       @day['type:bug:open'].should.equal 0
       @day['type:story:open'].should.equal 0
       @day['type:subtask:open'].should.equal 0
+      @day['priority:unprioritized:open'].should.equal 0
+      @day['priority:p1:open'].should.equal 0
+      @day['priority:p2:open'].should.equal 0
+      @day['component:component1:open'].should.equal 0
+      @day['component:component2:open'].should.equal 0
+      @day['component:component3:open'].should.equal 0
 
     it 'should correctly accumulate technical debt', ->
       @day.technicalDebt.should.equal 0
       @day['type:bug:technicalDebt'].should.equal 0
       @day['type:story:technicalDebt'].should.equal 0
       @day['type:subtask:technicalDebt'].should.equal 0
+      @day['priority:unprioritized:technicalDebt'].should.equal 0
+      @day['priority:p1:technicalDebt'].should.equal 0
+      @day['priority:p2:technicalDebt'].should.equal 0
+      @day['component:component1:technicalDebt'].should.equal 0
+      @day['component:component2:technicalDebt'].should.equal 0
+      @day['component:component3:technicalDebt'].should.equal 0
 
     it 'should correctly accumulate lead time 7 day moving average', ->
       @day.leadTimeMA7.should.equal 5
       @day['type:bug:leadTimeMA7'].should.equal 5
       expect(@day['type:story:leadTimeMA7']).to.be.null
       expect(@day['type:subtask:leadTimeMA7']).to.be.null
+      expect(@day['priority:unprioritized:leadTimeMA7']).to.be.null
+      @day['priority:p1:leadTimeMA7'].should.equal 5
+      expect(@day['priority:p2:leadTimeMA7']).to.be.null
+      @day['component:component1:leadTimeMA7'].should.equal 5
+      expect(@day['component:component2:leadTimeMA7']).to.be.null
+      @day['component:component3:leadTimeMA7'].should.equal 5
 
     it 'should correctly accumulate cycle time 7 day moving average', ->
       @day.cycleTimeMA7.should.equal 3
       @day['type:bug:cycleTimeMA7'].should.equal 3
       expect(@day['type:story:cycleTimeMA7']).to.be.null
       expect(@day['type:subtask:cycleTimeMA7']).to.be.null
+      expect(@day['priority:unprioritized:cycleTimeMA7']).to.be.null
+      @day['priority:p1:cycleTimeMA7'].should.equal 3
+      expect(@day['priority:p2:cycleTimeMA7']).to.be.null
+      @day['component:component1:cycleTimeMA7'].should.equal 3
+      expect(@day['component:component2:cycleTimeMA7']).to.be.null
+      @day['component:component3:cycleTimeMA7'].should.equal 3
 
     it 'should correctly accumulate deferred time 7 day moving average', ->
       @day.deferredTimeMA7.should.equal 2
       @day['type:bug:deferredTimeMA7'].should.equal 2
       expect(@day['type:story:deferredTimeMA7']).to.be.null
       expect(@day['type:subtask:deferredTimeMA7']).to.be.null
+      expect(@day['priority:unprioritized:deferredTimeMA7']).to.be.null
+      @day['priority:p1:deferredTimeMA7'].should.equal 2
+      expect(@day['priority:p2:deferredTimeMA7']).to.be.null
+      @day['component:component1:deferredTimeMA7'].should.equal 2
+      expect(@day['component:component2:deferredTimeMA7']).to.be.null
+      @day['component:component3:deferredTimeMA7'].should.equal 2
 
     describe '2nd #addIssue', ->
       before ->
         @issue =
           type: 'story'
+          priority: 'p2'
+          affectsComponent: (component) -> component in [
+            'component2'
+            'component3'
+          ]
           leadTime: 3
           cycleTime: 1
           deferredTime: 2
@@ -155,35 +257,70 @@ describe 'Day', ->
         @day['type:bug:open'].should.equal 0
         @day['type:story:open'].should.equal 0
         @day['type:subtask:open'].should.equal 0
+        @day['priority:unprioritized:open'].should.equal 0
+        @day['priority:p1:open'].should.equal 0
+        @day['priority:p2:open'].should.equal 0
+        @day['component:component1:open'].should.equal 0
+        @day['component:component2:open'].should.equal 0
+        @day['component:component3:open'].should.equal 0
 
       it 'should correctly accumulate technical debt', ->
         @day.technicalDebt.should.equal 0
         @day['type:bug:technicalDebt'].should.equal 0
         @day['type:story:technicalDebt'].should.equal 0
         @day['type:subtask:technicalDebt'].should.equal 0
+        @day['priority:unprioritized:technicalDebt'].should.equal 0
+        @day['priority:p1:technicalDebt'].should.equal 0
+        @day['priority:p2:technicalDebt'].should.equal 0
+        @day['component:component1:technicalDebt'].should.equal 0
+        @day['component:component2:technicalDebt'].should.equal 0
+        @day['component:component3:technicalDebt'].should.equal 0
 
       it 'should correctly accumulate lead time 7 day moving average', ->
         @day.leadTimeMA7.should.equal 4
         @day['type:bug:leadTimeMA7'].should.equal 5
         @day['type:story:leadTimeMA7'].should.equal 3
         expect(@day['type:subtask:leadTimeMA7']).to.be.null
+        expect(@day['priority:unprioritized:leadTimeMA7']).to.be.null
+        @day['priority:p1:leadTimeMA7'].should.equal 5
+        @day['priority:p2:leadTimeMA7'].should.equal 3
+        @day['component:component1:leadTimeMA7'].should.equal 5
+        @day['component:component2:leadTimeMA7'].should.equal 3
+        @day['component:component3:leadTimeMA7'].should.equal 4
 
       it 'should correctly accumulate cycle time 7 day moving average', ->
         @day.cycleTimeMA7.should.equal 2
         @day['type:bug:cycleTimeMA7'].should.equal 3
         @day['type:story:cycleTimeMA7'].should.equal 1
         expect(@day['type:subtask:cycleTimeMA7']).to.be.null
+        expect(@day['priority:unprioritized:cycleTimeMA7']).to.be.null
+        @day['priority:p1:cycleTimeMA7'].should.equal 3
+        @day['priority:p2:cycleTimeMA7'].should.equal 1
+        @day['component:component1:cycleTimeMA7'].should.equal 3
+        @day['component:component2:cycleTimeMA7'].should.equal 1
+        @day['component:component3:cycleTimeMA7'].should.equal 2
 
       it 'should correctly accumulate deferred time 7 day moving average', ->
         @day.deferredTimeMA7.should.equal 2
         @day['type:bug:deferredTimeMA7'].should.equal 2
         @day['type:story:deferredTimeMA7'].should.equal 2
         expect(@day['type:subtask:deferredTimeMA7']).to.be.null
+        expect(@day['priority:unprioritized:deferredTimeMA7']).to.be.null
+        @day['priority:p1:deferredTimeMA7'].should.equal 2
+        @day['priority:p2:deferredTimeMA7'].should.equal 2
+        @day['component:component1:deferredTimeMA7'].should.equal 2
+        @day['component:component2:deferredTimeMA7'].should.equal 2
+        @day['component:component3:deferredTimeMA7'].should.equal 2
 
       describe '3rd #addIssue', ->
         before ->
           @issue =
             type: 'bug'
+            priority: 'unprioritized'
+            affectsComponent: (component) -> component in [
+              'component1'
+              'component2'
+            ]
             leadTime: 20
             cycleTime: 15
             deferredTime: 5
@@ -197,36 +334,72 @@ describe 'Day', ->
           @day['type:bug:open'].should.equal 0
           @day['type:story:open'].should.equal 0
           @day['type:subtask:open'].should.equal 0
+          @day['priority:unprioritized:open'].should.equal 0
+          @day['priority:p1:open'].should.equal 0
+          @day['priority:p2:open'].should.equal 0
+          @day['component:component1:open'].should.equal 0
+          @day['component:component2:open'].should.equal 0
+          @day['component:component3:open'].should.equal 0
 
         it 'should correctly accumulate technical debt', ->
           @day.technicalDebt.should.equal 0
           @day['type:bug:technicalDebt'].should.equal 0
           @day['type:story:technicalDebt'].should.equal 0
           @day['type:subtask:technicalDebt'].should.equal 0
+          @day['priority:unprioritized:technicalDebt'].should.equal 0
+          @day['priority:p1:technicalDebt'].should.equal 0
+          @day['priority:p2:technicalDebt'].should.equal 0
+          @day['component:component1:technicalDebt'].should.equal 0
+          @day['component:component2:technicalDebt'].should.equal 0
+          @day['component:component3:technicalDebt'].should.equal 0
 
         it 'should correctly accumulate lead time 7 day moving average', ->
           @day.leadTimeMA7.should.equal 4
           @day['type:bug:leadTimeMA7'].should.equal 5
           @day['type:story:leadTimeMA7'].should.equal 3
           expect(@day['type:subtask:leadTimeMA7']).to.be.null
+          expect(@day['priority:unprioritized:leadTimeMA7']).to.be.null
+          @day['priority:p1:leadTimeMA7'].should.equal 5
+          @day['priority:p2:leadTimeMA7'].should.equal 3
+          @day['component:component1:leadTimeMA7'].should.equal 5
+          @day['component:component2:leadTimeMA7'].should.equal 3
+          @day['component:component3:leadTimeMA7'].should.equal 4
 
         it 'should correctly accumulate cycle time 7 day moving average', ->
           @day.cycleTimeMA7.should.equal 2
           @day['type:bug:cycleTimeMA7'].should.equal 3
           @day['type:story:cycleTimeMA7'].should.equal 1
           expect(@day['type:subtask:cycleTimeMA7']).to.be.null
+          expect(@day['priority:unprioritized:cycleTimeMA7']).to.be.null
+          @day['priority:p1:cycleTimeMA7'].should.equal 3
+          @day['priority:p2:cycleTimeMA7'].should.equal 1
+          @day['component:component1:cycleTimeMA7'].should.equal 3
+          @day['component:component2:cycleTimeMA7'].should.equal 1
+          @day['component:component3:cycleTimeMA7'].should.equal 2
 
         it 'should correctly accumulate deferred time 7 day moving average', ->
           @day.deferredTimeMA7.should.equal 2
           @day['type:bug:deferredTimeMA7'].should.equal 2
           @day['type:story:deferredTimeMA7'].should.equal 2
           expect(@day['type:subtask:deferredTimeMA7']).to.be.null
+          expect(@day['priority:unprioritized:deferredTimeMA7']).to.be.null
+          @day['priority:p1:deferredTimeMA7'].should.equal 2
+          @day['priority:p2:deferredTimeMA7'].should.equal 2
+          @day['component:component1:deferredTimeMA7'].should.equal 2
+          @day['component:component2:deferredTimeMA7'].should.equal 2
+          @day['component:component3:deferredTimeMA7'].should.equal 2
 
         describe '4th #addIssue', ->
           before ->
             @issue =
               type: 'subtask'
               parentType: 'bug'
+              priority: 'unprioritized'
+              parentPriority: 'p2'
+              affectsComponent: (component) -> component in [
+                'component1'
+                'component2'
+              ]
               resolvedDays: -> 7
               openOnDate: -> true
               technicalDebtOnDate: -> 6
@@ -237,24 +410,48 @@ describe 'Day', ->
             @day['type:bug:open'].should.equal 1
             @day['type:story:open'].should.equal 0
             @day['type:subtask:open'].should.equal 1
+            @day['priority:unprioritized:open'].should.equal 1
+            @day['priority:p1:open'].should.equal 0
+            @day['priority:p2:open'].should.equal 1
+            @day['component:component1:open'].should.equal 1
+            @day['component:component2:open'].should.equal 1
+            @day['component:component3:open'].should.equal 0
 
           it 'should correctly accumulate technical debt', ->
             @day.technicalDebt.should.equal 6
             @day['type:bug:technicalDebt'].should.equal 6
             @day['type:story:technicalDebt'].should.equal 0
             @day['type:subtask:technicalDebt'].should.equal 6
+            @day['priority:unprioritized:technicalDebt'].should.equal 6
+            @day['priority:p1:technicalDebt'].should.equal 0
+            @day['priority:p2:technicalDebt'].should.equal 6
+            @day['component:component1:technicalDebt'].should.equal 6
+            @day['component:component2:technicalDebt'].should.equal 6
+            @day['component:component3:technicalDebt'].should.equal 0
 
           it 'should correctly accumulate lead time 7 day moving average', ->
             @day.leadTimeMA7.should.equal 4
             @day['type:bug:leadTimeMA7'].should.equal 5
             @day['type:story:leadTimeMA7'].should.equal 3
             expect(@day['type:subtask:leadTimeMA7']).to.be.null
+            expect(@day['priority:unprioritized:leadTimeMA7']).to.be.null
+            @day['priority:p1:leadTimeMA7'].should.equal 5
+            @day['priority:p2:leadTimeMA7'].should.equal 3
+            @day['component:component1:leadTimeMA7'].should.equal 5
+            @day['component:component2:leadTimeMA7'].should.equal 3
+            @day['component:component3:leadTimeMA7'].should.equal 4
 
           it 'should correctly accumulate cycle time 7 day moving average', ->
             @day.cycleTimeMA7.should.equal 2
             @day['type:bug:cycleTimeMA7'].should.equal 3
             @day['type:story:cycleTimeMA7'].should.equal 1
             expect(@day['type:subtask:cycleTimeMA7']).to.be.null
+            expect(@day['priority:unprioritized:cycleTimeMA7']).to.be.null
+            @day['priority:p1:cycleTimeMA7'].should.equal 3
+            @day['priority:p2:cycleTimeMA7'].should.equal 1
+            @day['component:component1:cycleTimeMA7'].should.equal 3
+            @day['component:component2:cycleTimeMA7'].should.equal 1
+            @day['component:component3:cycleTimeMA7'].should.equal 2
 
 # coffeelint: disable=max_line_length
           it 'should correctly accumulate deferred time 7 day moving average', ->
@@ -263,11 +460,22 @@ describe 'Day', ->
             @day['type:bug:deferredTimeMA7'].should.equal 2
             @day['type:story:deferredTimeMA7'].should.equal 2
             expect(@day['type:subtask:deferredTimeMA7']).to.be.null
+            expect(@day['priority:unprioritized:deferredTimeMA7']).to.be.null
+            @day['priority:p1:deferredTimeMA7'].should.equal 2
+            @day['priority:p2:deferredTimeMA7'].should.equal 2
+            @day['component:component1:deferredTimeMA7'].should.equal 2
+            @day['component:component2:deferredTimeMA7'].should.equal 2
+            @day['component:component3:deferredTimeMA7'].should.equal 2
 
           describe '5th #addIssue', ->
             before ->
               @issue =
                 type: 'bug'
+                priority: 'p1'
+                affectsComponent: (component) -> component in [
+                  'component2'
+                  'component3'
+                ]
                 resolvedDays: -> 7
                 openOnDate: -> true
                 technicalDebtOnDate: -> 5
@@ -278,24 +486,48 @@ describe 'Day', ->
               @day['type:bug:open'].should.equal 2
               @day['type:story:open'].should.equal 0
               @day['type:subtask:open'].should.equal 1
+              @day['priority:unprioritized:open'].should.equal 1
+              @day['priority:p1:open'].should.equal 1
+              @day['priority:p2:open'].should.equal 1
+              @day['component:component1:open'].should.equal 1
+              @day['component:component2:open'].should.equal 2
+              @day['component:component3:open'].should.equal 1
 
             it 'should correctly accumulate technical debt', ->
               @day.technicalDebt.should.equal 11
               @day['type:bug:technicalDebt'].should.equal 11
               @day['type:story:technicalDebt'].should.equal 0
               @day['type:subtask:technicalDebt'].should.equal 6
+              @day['priority:unprioritized:technicalDebt'].should.equal 6
+              @day['priority:p1:technicalDebt'].should.equal 5
+              @day['priority:p2:technicalDebt'].should.equal 6
+              @day['component:component1:technicalDebt'].should.equal 6
+              @day['component:component2:technicalDebt'].should.equal 11
+              @day['component:component3:technicalDebt'].should.equal 5
 
             it 'should correctly accumulate lead time 7 day moving average', ->
               @day.leadTimeMA7.should.equal 4
               @day['type:bug:leadTimeMA7'].should.equal 5
               @day['type:story:leadTimeMA7'].should.equal 3
               expect(@day['type:subtask:leadTimeMA7']).to.be.null
+              expect(@day['priority:unprioritized:leadTimeMA7']).to.be.null
+              @day['priority:p1:leadTimeMA7'].should.equal 5
+              @day['priority:p2:leadTimeMA7'].should.equal 3
+              @day['component:component1:leadTimeMA7'].should.equal 5
+              @day['component:component2:leadTimeMA7'].should.equal 3
+              @day['component:component3:leadTimeMA7'].should.equal 4
 
             it 'should correctly accumulate cycle time 7 day moving average', ->
               @day.cycleTimeMA7.should.equal 2
               @day['type:bug:cycleTimeMA7'].should.equal 3
               @day['type:story:cycleTimeMA7'].should.equal 1
               expect(@day['type:subtask:cycleTimeMA7']).to.be.null
+              expect(@day['priority:unprioritized:cycleTimeMA7']).to.be.null
+              @day['priority:p1:cycleTimeMA7'].should.equal 3
+              @day['priority:p2:cycleTimeMA7'].should.equal 1
+              @day['component:component1:cycleTimeMA7'].should.equal 3
+              @day['component:component2:cycleTimeMA7'].should.equal 1
+              @day['component:component3:cycleTimeMA7'].should.equal 2
 
 # coffeelint: disable=max_line_length
             it 'should correctly accumulate deferred time 7 day moving average', ->
@@ -304,3 +536,9 @@ describe 'Day', ->
               @day['type:bug:deferredTimeMA7'].should.equal 2
               @day['type:story:deferredTimeMA7'].should.equal 2
               expect(@day['type:subtask:deferredTimeMA7']).to.be.null
+              expect(@day['priority:unprioritized:deferredTimeMA7']).to.be.null
+              @day['priority:p1:deferredTimeMA7'].should.equal 2
+              @day['priority:p2:deferredTimeMA7'].should.equal 2
+              @day['component:component1:deferredTimeMA7'].should.equal 2
+              @day['component:component2:deferredTimeMA7'].should.equal 2
+              @day['component:component3:deferredTimeMA7'].should.equal 2
