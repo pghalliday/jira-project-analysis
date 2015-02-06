@@ -50,9 +50,6 @@
     "port": 443,
     "username": "username",
     "password": "password",
-    "apiVersion": "2",
-    "verbose": false,
-    "strictSSL": true,
-    "oauth": false
+    "strictSSL": true
   }
 }
