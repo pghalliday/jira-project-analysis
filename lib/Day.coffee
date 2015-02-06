@@ -1,5 +1,9 @@
 _ = require 'underscore'
 
+__movingAverageAccumulatorInitialState = ->
+  total: 0
+  count: 0
+
 __movingAverageAccumulator = (field, days) ->
   (state, issueStats) ->
     if issueStats
@@ -29,21 +33,15 @@ __fields =
       state.total
   leadTimeMA7:
     description: 'lead time MA7'
-    initialState: ->
-      total: 0
-      count: 0
+    initialState: __movingAverageAccumulatorInitialState
     accumulator: __movingAverageAccumulator 'leadTime', 7
   cycleTimeMA7:
     description: 'cycle time MA7'
-    initialState: ->
-      total: 0
-      count: 0
+    initialState: __movingAverageAccumulatorInitialState
     accumulator: __movingAverageAccumulator 'cycleTime', 7
   deferredTimeMA7:
     description: 'deferred time MA7'
-    initialState: ->
-      total: 0
-      count: 0
+    initialState: __movingAverageAccumulatorInitialState
     accumulator: __movingAverageAccumulator 'deferredTime', 7
 
 __field = (filter, name, field) ->
