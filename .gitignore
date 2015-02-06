@@ -1,7 +1,8 @@
 node_modules/
 /coverage.html
 *.log
+npm-debug.log.*
 *.csv
 /config.json
 .sass-cache/
-dist/
+www/
