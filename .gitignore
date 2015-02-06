@@ -3,3 +3,5 @@ node_modules/
 *.log
 *.csv
 /config.json
+.sass-cache/
+dist/

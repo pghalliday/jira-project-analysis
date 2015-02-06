@@ -3,7 +3,7 @@ chai.should()
 expect = chai.expect
 
 moment = require 'moment'
-Issue = require '../lib/Issue'
+Issue = require '../../lib/Issue'
 
 describe 'Issue', ->
   before ->

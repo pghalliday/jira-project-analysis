@@ -6,7 +6,7 @@ expect = chai.expect
 chai.use sinonChai
 
 moment = require 'moment'
-Day = require '../lib/Day'
+Day = require '../../lib/Day'
 
 describe 'Day', ->
   before ->

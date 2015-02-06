@@ -1,4 +1,9 @@
 {
+    "coffeelint": {
+      "transforms": [
+        "coffee-react-transform"
+      ]
+    },
     "arrow_spacing": {
         "level": "ignore"
     },
