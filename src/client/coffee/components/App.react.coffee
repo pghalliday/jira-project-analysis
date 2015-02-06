@@ -2,8 +2,8 @@ React = require 'react'
 
 App = React.createClass
   getInitialState: ->
-    'Hello, world!'
+    message: 'Hello, world!'
   render: ->
-    <p>{this.state}</p>
+    <p>{this.state.message}</p>
 
 module.exports = App

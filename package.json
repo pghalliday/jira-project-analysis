@@ -13,12 +13,13 @@
     "sass": "bundle exec sass ./src/client/scss/app.scss ./www/css/app.css",
     "prebuild": "npm run www",
     "build": "parallelshell 'npm run copy' 'npm run browserify' 'npm run sass'",
+    "preserver": "npm run build",
+    "server": "http-server ./www/",
     "lint": "coffeelint -f coffeelint.json test/ lib/ src/",
-    "unit-test": "mocha --recursive ./test/",
-    "profile": "mocha --prof --recursive ./test/",
     "coverage": "multi='spec=- html-cov=coverage.html mocha-cov-reporter=-' mocha --require coffee-coverage/register -R mocha-multi --recursive ./test/",
     "pretest": "npm run lint",
-    "test": "npm run coverage"
+    "test": "npm run coverage",
+    "start": "npm run server"
   },
   "config": {
     "mocha-cov-reporter": {
@@ -70,6 +71,7 @@
     "coffee-react-transform": "^2.2.1",
     "coffee-reactify": "^2.1.0",
     "coffeelint": "^1.8.1",
+    "http-server": "^0.7.4",
     "jsdom": "^3.1.0",
     "mkdirp": "^0.5.0",
     "mocha": "^2.1.0",
