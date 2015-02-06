@@ -1,5 +1,3 @@
-_ = require 'underscore'
-
 __movingAverageAccumulatorInitialState = ->
   total: 0
   count: 0
@@ -8,7 +6,7 @@ __movingAverageAccumulator = (field, days) ->
   (state, issueStats) ->
     if issueStats
       resolvedDays = issueStats.resolvedDays
-      if resolvedDays >= 0 and resolvedDays < days
+      if resolvedDays in [0..(days - 1)]
         state.total += issueStats[field]
         state.count++
     if state.count

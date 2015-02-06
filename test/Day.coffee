@@ -321,10 +321,7 @@ describe 'Day', ->
               'component1'
               'component2'
             ]
-            leadTime: 20
-            cycleTime: 15
-            deferredTime: 5
-            resolvedDays: -> 7
+            resolvedDays: -> null
             openOnDate: -> false
             technicalDebtOnDate: -> 0
           @day.addIssue @issue

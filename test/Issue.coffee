@@ -736,3 +736,60 @@ describe 'Issue', ->
       @issue10.cycleTime.should.equal 0
       @issue10.leadTime.should.equal 950400
       @issue10.deferredTime.should.equal 950400
+
+  describe 'accumulators', ->
+    before ->
+      @Issue = Issue @statusMap, @userMap, 300
+      rawIssue =
+        key: 'key-1'
+        fields:
+          created: '2015-01-20T11:19:48.633+0000'
+          status:
+            name: 'done'
+          issuetype:
+            name: 'bug'
+          priority:
+            name: 'p1'
+          resolution:
+            name: 'fixed'
+          labels: [
+            'label1'
+            'label2'
+          ]
+          components: [
+            name: 'component1'
+          ,
+            name: 'component2'
+          ]
+        changelog:
+          histories: []
+      issue = new @Issue rawIssue
+      issue = new @Issue rawIssue
+      issue = new @Issue rawIssue
+
+    it 'should only accumulate unique types', ->
+      @Issue.types.should.deep.equal [
+        'bug'
+      ]
+
+    it 'should only accumulate unique priorities', ->
+      @Issue.priorities.should.deep.equal [
+        'p1'
+      ]
+
+    it 'should only accumulate unique resolutions', ->
+      @Issue.resolutions.should.deep.equal [
+        'fixed'
+      ]
+
+    it 'should only accumulate unique labels', ->
+      @Issue.labels.should.deep.equal [
+        'label1'
+        'label2'
+      ]
+
+    it 'should only accumulate unique components', ->
+      @Issue.components.should.deep.equal [
+        'component1'
+        'component2'
+      ]

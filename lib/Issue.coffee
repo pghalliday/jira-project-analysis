@@ -73,18 +73,18 @@ module.exports = (__statusMap, __userMap, __minimumTrustedCycleTime) ->
 
     _processType: (@type) =>
       types = Issue.types
-      types.push @type if types.indexOf @type is -1
+      types.push @type if @type not in types
 
     _processPriority: (@priority) =>
       priorities = Issue.priorities
-      priorities.push @priority if priorities.indexOf @priority is -1
+      priorities.push @priority if @priority not in priorities
 
     _processLabel: (label) =>
       labels = Issue.labels
       field = labelFieldName label
       @[field] = 'yes'
       Issue.columns[field] = 'label:' + label
-      labels.push label if labels.indexOf label is -1
+      labels.push label if label not in labels
 
     hasLabel: (label) => @[labelFieldName label] == 'yes'
 
@@ -93,7 +93,7 @@ module.exports = (__statusMap, __userMap, __minimumTrustedCycleTime) ->
       field = componentFieldName component
       @[field] = 'yes'
       Issue.columns[field] = 'component:' + component
-      components.push component if components.indexOf component is -1
+      components.push component if component not in components
 
     affectsComponent: (component) => @[componentFieldName component] is 'yes'
 
@@ -147,7 +147,7 @@ module.exports = (__statusMap, __userMap, __minimumTrustedCycleTime) ->
       if resolution
         @resolution = resolution.name
         resolutions = Issue.resolutions
-        resolutions.push @resolution if resolutions.indexOf @resolution is -1
+        resolutions.push @resolution if @resolution not in resolutions
       if resolutiondate
         @_closed = moment resolutiondate
       else
