@@ -51,6 +51,7 @@
   },
   "dependencies": {
     "JSONStream": "^0.10.0",
+    "chart.js": "^1.0.1",
     "coffee-script": "^1.8.0",
     "csv-stringify": "0.0.5",
     "flux": "^2.0.1",
@@ -59,7 +60,10 @@
     "q": "^1.1.2",
     "q-io": "^1.11.6",
     "react": "^0.12.2",
+    "react-chartjs": "^0.4.0",
+    "react-layout": "^0.2.0",
     "request": "^2.51.0",
+    "sass-flex-mixin": "^1.0.0",
     "stream-reduce": "^1.0.3",
     "underscore": "^1.7.0"
   },
@@ -79,7 +83,6 @@
     "mocha-multi": "^0.6.0",
     "ncp": "^1.0.1",
     "parallelshell": "^1.0.4",
-    "react-chartjs": "^0.3.0",
     "rimraf": "^2.2.8",
     "sinon": "^1.12.2",
     "sinon-chai": "^2.6.0",
