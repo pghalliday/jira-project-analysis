@@ -33,20 +33,21 @@ describe 'Issue', ->
     @Issue = Issue @statusMap, @userMap
 
   it 'should export initial columns', ->
-    @Issue.columns.should.deep.equal
-      key: 'key'
-      status: 'status'
-      created: 'created'
-      closed: 'closed'
-      leadTime: 'lead time'
-      cycleTime: 'cycle time'
-      deferredTime: 'deferred time'
-      type: 'type'
-      parentStatus: 'parent status'
-      parentPriority: 'parent priority'
-      parentType: 'parent type'
-      priority: 'priority'
-      resolution: 'resolution'
+    @Issue.columns.should.deep.equal [
+      'key'
+      'status'
+      'created'
+      'closed'
+      'leadTime'
+      'cycleTime'
+      'deferredTime'
+      'type'
+      'parentStatus'
+      'parentPriority'
+      'parentType'
+      'priority'
+      'resolution'
+    ]
 
   it 'should export initial labels', ->
     @Issue.labels.should.deep.equal []
@@ -143,12 +144,12 @@ describe 'Issue', ->
       @issue.parentType.should.equal 'bug'
 
     it 'should initialise labels', ->
-      @issue.label_label1.should.equal 'yes'
-      @issue.label_label2.should.equal 'yes'
+      @issue['label.label1'].should.equal 'yes'
+      @issue['label.label2'].should.equal 'yes'
 
     it 'should initialise components', ->
-      @issue.component_component1.should.equal 'yes'
-      @issue.component_component2.should.equal 'yes'
+      @issue['component.component1'].should.equal 'yes'
+      @issue['component.component2'].should.equal 'yes'
 
     it 'should append to Issue labels', ->
       @Issue.labels.should.deep.equal [
@@ -173,24 +174,25 @@ describe 'Issue', ->
       ]
 
     it 'should append to Issue columns', ->
-      @Issue.columns.should.deep.equal
-        key: 'key'
-        status: 'status'
-        created: 'created'
-        closed: 'closed'
-        leadTime: 'lead time'
-        cycleTime: 'cycle time'
-        deferredTime: 'deferred time'
-        type: 'type'
-        parentStatus: 'parent status'
-        parentPriority: 'parent priority'
-        parentType: 'parent type'
-        priority: 'priority'
-        resolution: 'resolution'
-        label_label1: 'label:label1'
-        label_label2: 'label:label2'
-        component_component1: 'component:component1'
-        component_component2: 'component:component2'
+      @Issue.columns.should.deep.equal [
+        'key'
+        'status'
+        'created'
+        'closed'
+        'leadTime'
+        'cycleTime'
+        'deferredTime'
+        'type'
+        'parentStatus'
+        'parentPriority'
+        'parentType'
+        'priority'
+        'resolution'
+        'label.label1'
+        'label.label2'
+        'component.component1'
+        'component.component2'
+      ]
 
     it 'should append to Issue unknown statuses', ->
       @Issue.unknownStatuses.should.deep.equal [

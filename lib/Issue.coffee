@@ -1,8 +1,8 @@
 _ = require 'underscore'
 moment = require 'moment'
 
-labelFieldName = (label) -> 'label_' + label
-componentFieldName = (component) -> 'component_' + component
+labelFieldName = (label) -> 'label.' + label
+componentFieldName = (component) -> 'component.' + component
 
 module.exports = (__statusMap, __userMap, __minimumTrustedCycleTime) ->
   __minimumTrustedCycleTime = __minimumTrustedCycleTime or 0
@@ -22,20 +22,21 @@ module.exports = (__statusMap, __userMap, __minimumTrustedCycleTime) ->
   )
 
   class Issue
-    @columns =
-      key: 'key'
-      status: 'status'
-      created: 'created'
-      closed: 'closed'
-      leadTime: 'lead time'
-      cycleTime: 'cycle time'
-      deferredTime: 'deferred time'
-      type: 'type'
-      parentStatus: 'parent status'
-      parentPriority: 'parent priority'
-      parentType: 'parent type'
-      priority: 'priority'
-      resolution: 'resolution'
+    @columns = [
+      'key'
+      'status'
+      'created'
+      'closed'
+      'leadTime'
+      'cycleTime'
+      'deferredTime'
+      'type'
+      'parentStatus'
+      'parentPriority'
+      'parentType'
+      'priority'
+      'resolution'
+    ]
     @types = []
     @priorities = []
     @resolutions = []
@@ -83,7 +84,7 @@ module.exports = (__statusMap, __userMap, __minimumTrustedCycleTime) ->
       labels = Issue.labels
       field = labelFieldName label
       @[field] = 'yes'
-      Issue.columns[field] = 'label:' + label
+      Issue.columns.push field
       labels.push label if label not in labels
 
     hasLabel: (label) => @[labelFieldName label] == 'yes'
@@ -92,7 +93,7 @@ module.exports = (__statusMap, __userMap, __minimumTrustedCycleTime) ->
       components = Issue.components
       field = componentFieldName component
       @[field] = 'yes'
-      Issue.columns[field] = 'component:' + component
+      Issue.columns.push field
       components.push component if component not in components
 
     affectsComponent: (component) => @[componentFieldName component] is 'yes'
