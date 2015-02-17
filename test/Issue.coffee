@@ -225,7 +225,7 @@ describe 'Issue', ->
 
       it 'should return number of days open if date is after created', ->
         date = moment '2015-01-22T11:19:48.633+0000'
-        @issue.technicalDebtOnDate(date).should.equal 172800
+        @issue.technicalDebtOnDate(date).should.equal 2
 
     describe '#resolvedDays', ->
       it 'should return null', ->
@@ -308,13 +308,13 @@ describe 'Issue', ->
       @issue.closed.should.equal '2015/01/26'
 
     it 'should initialise lead time', ->
-      @issue.leadTime.should.equal 518400
+      @issue.leadTime.should.equal 6
 
     it 'should initialise cycle time', ->
-      @issue.cycleTime.should.equal 172800
+      @issue.cycleTime.should.equal 2
 
     it 'should initialise deferred time', ->
-      @issue.deferredTime.should.equal 345600
+      @issue.deferredTime.should.equal 4
 
     it 'should initialise resolution', ->
       @issue.resolution.should.equal 'fixed'
@@ -655,89 +655,89 @@ describe 'Issue', ->
     it 'should not calculate a new cycle time if the closing user did not close an issue before it', ->
 # coffeelint: enable=max_line_length
       @issue1.cycleTime.should.equal 0
-      @issue1.leadTime.should.equal 345600
-      @issue1.deferredTime.should.equal 345600
+      @issue1.leadTime.should.equal 4
+      @issue1.deferredTime.should.equal 4
       @issue1.checkCycleTime()
       @issue1.cycleTime.should.equal 0
-      @issue1.leadTime.should.equal 345600
-      @issue1.deferredTime.should.equal 345600
+      @issue1.leadTime.should.equal 4
+      @issue1.deferredTime.should.equal 4
       @issue2.cycleTime.should.equal 0
-      @issue2.leadTime.should.equal 432000
-      @issue2.deferredTime.should.equal 432000
+      @issue2.leadTime.should.equal 5
+      @issue2.deferredTime.should.equal 5
       @issue2.checkCycleTime()
       @issue2.cycleTime.should.equal 0
-      @issue2.leadTime.should.equal 432000
-      @issue2.deferredTime.should.equal 432000
+      @issue2.leadTime.should.equal 5
+      @issue2.deferredTime.should.equal 5
 
 # coffeelint: disable=max_line_length
     it 'should calculate a new cycle time if the current cycle time is less than the minimum trusted cycle time', ->
 # coffeelint: enable=max_line_length
       @issue3.cycleTime.should.equal 0
-      @issue3.leadTime.should.equal 518400
-      @issue3.deferredTime.should.equal 518400
+      @issue3.leadTime.should.equal 6
+      @issue3.deferredTime.should.equal 6
       @issue3.checkCycleTime()
-      @issue3.cycleTime.should.equal 172800
-      @issue3.leadTime.should.equal 518400
-      @issue3.deferredTime.should.equal 345600
+      @issue3.cycleTime.should.equal 2
+      @issue3.leadTime.should.equal 6
+      @issue3.deferredTime.should.equal 4
       @issue4.cycleTime.should.equal 0
-      @issue4.leadTime.should.equal 691200
-      @issue4.deferredTime.should.equal 691200
+      @issue4.leadTime.should.equal 8
+      @issue4.deferredTime.should.equal 8
       @issue4.checkCycleTime()
-      @issue4.cycleTime.should.equal 259200
-      @issue4.leadTime.should.equal 691200
-      @issue4.deferredTime.should.equal 432000
+      @issue4.cycleTime.should.equal 3
+      @issue4.leadTime.should.equal 8
+      @issue4.deferredTime.should.equal 5
       @issue5.cycleTime.should.equal 0
-      @issue5.leadTime.should.equal 604800
-      @issue5.deferredTime.should.equal 604800
+      @issue5.leadTime.should.equal 7
+      @issue5.deferredTime.should.equal 7
       @issue5.checkCycleTime()
-      @issue5.cycleTime.should.equal 86400
-      @issue5.leadTime.should.equal 604800
-      @issue5.deferredTime.should.equal 518400
+      @issue5.cycleTime.should.equal 1
+      @issue5.leadTime.should.equal 7
+      @issue5.deferredTime.should.equal 6
       @issue6.cycleTime.should.equal 0
-      @issue6.leadTime.should.equal 864000
-      @issue6.deferredTime.should.equal 864000
+      @issue6.leadTime.should.equal 10
+      @issue6.deferredTime.should.equal 10
       @issue6.checkCycleTime()
-      @issue6.cycleTime.should.equal 172800
-      @issue6.leadTime.should.equal 864000
-      @issue6.deferredTime.should.equal 691200
+      @issue6.cycleTime.should.equal 2
+      @issue6.leadTime.should.equal 10
+      @issue6.deferredTime.should.equal 8
 
 # coffeelint: disable=max_line_length
     it 'should take into account cases where issues are reopened and fixed by the same user', ->
 # coffeelint: enable=max_line_length
       @issue7.cycleTime.should.equal 0
-      @issue7.leadTime.should.equal 1123200
-      @issue7.deferredTime.should.equal 1123200
+      @issue7.leadTime.should.equal 13
+      @issue7.deferredTime.should.equal 13
       @issue7.checkCycleTime()
-      @issue7.cycleTime.should.equal 518400
-      @issue7.leadTime.should.equal 1123200
-      @issue7.deferredTime.should.equal 604800
+      @issue7.cycleTime.should.equal 6
+      @issue7.leadTime.should.equal 13
+      @issue7.deferredTime.should.equal 7
 
 # coffeelint: disable=max_line_length
     it 'should take into account cases where issues are reopened and fixed by a different user', ->
 # coffeelint: enable=max_line_length
       @issue8.cycleTime.should.equal 0
-      @issue8.leadTime.should.equal 1641600
-      @issue8.deferredTime.should.equal 1641600
+      @issue8.leadTime.should.equal 19
+      @issue8.deferredTime.should.equal 19
       @issue8.checkCycleTime()
-      @issue8.cycleTime.should.equal 950400
-      @issue8.leadTime.should.equal 1641600
-      @issue8.deferredTime.should.equal 691200
+      @issue8.cycleTime.should.equal 11
+      @issue8.leadTime.should.equal 19
+      @issue8.deferredTime.should.equal 8
 
     it 'should not count cases where an issue is closed by a non developer', ->
       @issue9.cycleTime.should.equal 0
-      @issue9.leadTime.should.equal 864000
-      @issue9.deferredTime.should.equal 864000
+      @issue9.leadTime.should.equal 10
+      @issue9.deferredTime.should.equal 10
       @issue9.checkCycleTime()
       @issue9.cycleTime.should.equal 0
-      @issue9.leadTime.should.equal 864000
-      @issue9.deferredTime.should.equal 864000
+      @issue9.leadTime.should.equal 10
+      @issue9.deferredTime.should.equal 10
       @issue10.cycleTime.should.equal 0
-      @issue10.leadTime.should.equal 950400
-      @issue10.deferredTime.should.equal 950400
+      @issue10.leadTime.should.equal 11
+      @issue10.deferredTime.should.equal 11
       @issue10.checkCycleTime()
       @issue10.cycleTime.should.equal 0
-      @issue10.leadTime.should.equal 950400
-      @issue10.deferredTime.should.equal 950400
+      @issue10.leadTime.should.equal 11
+      @issue10.deferredTime.should.equal 11
 
   describe 'accumulators', ->
     before ->

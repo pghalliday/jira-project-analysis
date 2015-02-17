@@ -6,6 +6,7 @@ componentFieldName = (component) -> 'component.' + component
 
 module.exports = (__statusMap, __userMap, __minimumTrustedCycleTime) ->
   __minimumTrustedCycleTime = __minimumTrustedCycleTime or 0
+  __minimumTrustedCycleTime = __minimumTrustedCycleTime / 86400
   __initialStatus = __statusMap.todo[0]
   __openStatuses = __statusMap.todo.concat __statusMap.inProgress
   __todoStatuses = __statusMap.todo
@@ -139,6 +140,7 @@ module.exports = (__statusMap, __userMap, __minimumTrustedCycleTime) ->
             closes = Issue._closers[author]
             close =
               key: @key
+              date: date
               unixTime: date.unix()
             insertIndex = _.sortedIndex closes, close, 'unixTime'
             closes.splice insertIndex, 0, close
@@ -153,7 +155,7 @@ module.exports = (__statusMap, __userMap, __minimumTrustedCycleTime) ->
         @_closed = moment resolutiondate
       else
         @_closed = @_lookupResolutionDate()
-      @leadTime = @_closed.diff @_created, 'seconds'
+      @leadTime = @_closed.diff @_created, 'days', true
       @cycleTime = @_calculateCycleTime()
       @deferredTime = @leadTime - @cycleTime
       @closed = @_closed.format 'YYYY/MM/DD'
@@ -177,7 +179,7 @@ module.exports = (__statusMap, __userMap, __minimumTrustedCycleTime) ->
         else
           if inProgress
             inProgress = false
-            cycleTime += change.date.diff inProgressStart, 'seconds'
+            cycleTime += change.date.diff inProgressStart, 'days', true
         cycleTime
       _.reduce @_statuses, iteratee, 0
 
@@ -190,7 +192,7 @@ module.exports = (__statusMap, __userMap, __minimumTrustedCycleTime) ->
             for close in Issue._closers[closer]
               if close.key is @key
                 if lastClose
-                  @cycleTime += close.unixTime - lastClose.unixTime
+                  @cycleTime += close.date.diff lastClose.date, 'days', true
               lastClose = close
           @deferredTime = @leadTime - @cycleTime
 
@@ -205,7 +207,7 @@ module.exports = (__statusMap, __userMap, __minimumTrustedCycleTime) ->
 
     technicalDebtOnDate: (date) =>
       if @openOnDate date
-        date.diff @_created, 'seconds'
+        date.diff @_created, 'days', true
       else
         0
 
