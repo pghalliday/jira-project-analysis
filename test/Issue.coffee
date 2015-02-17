@@ -785,12 +785,24 @@ describe 'Issue', ->
       ]
 
     it 'should only accumulate unique labels', ->
+      labelColumns = @Issue.columns.filter (column) ->
+        column.indexOf('label.') == 0
+      labelColumns.should.deep.equal([
+        'label.label1'
+        'label.label2'
+      ])
       @Issue.labels.should.deep.equal [
         'label1'
         'label2'
       ]
 
     it 'should only accumulate unique components', ->
+      componentColumns = @Issue.columns.filter (column) ->
+        column.indexOf('component.') == 0
+      componentColumns.should.deep.equal([
+        'component.component1'
+        'component.component2'
+      ])
       @Issue.components.should.deep.equal [
         'component1'
         'component2'

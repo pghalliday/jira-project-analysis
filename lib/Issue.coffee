@@ -84,7 +84,7 @@ module.exports = (__statusMap, __userMap, __minimumTrustedCycleTime) ->
       labels = Issue.labels
       field = labelFieldName label
       @[field] = 'yes'
-      Issue.columns.push field
+      Issue.columns.push field if field not in Issue.columns
       labels.push label if label not in labels
 
     hasLabel: (label) => @[labelFieldName label] == 'yes'
@@ -93,7 +93,7 @@ module.exports = (__statusMap, __userMap, __minimumTrustedCycleTime) ->
       components = Issue.components
       field = componentFieldName component
       @[field] = 'yes'
-      Issue.columns.push field
+      Issue.columns.push field if field not in Issue.columns
       components.push component if component not in components
 
     affectsComponent: (component) => @[componentFieldName component] is 'yes'
