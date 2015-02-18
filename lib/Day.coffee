@@ -27,6 +27,18 @@ __fields =
     accumulator: (state, issueStats) ->
       state.total += issueStats.technicalDebt if issueStats
       state.total
+  opened:
+    initialState: ->
+      count: 0
+    accumulator: (state, issueStats) ->
+      state.count++ if issueStats and issueStats.openedToday
+      state.count
+  closed:
+    initialState: ->
+      count: 0
+    accumulator: (state, issueStats) ->
+      state.count++ if issueStats and issueStats.closedToday
+      state.count
   leadTimeMA7:
     initialState: __movingAverageAccumulatorInitialState
     accumulator: __movingAverageAccumulator 'leadTime', 7
@@ -81,6 +93,8 @@ module.exports = (Issue) ->
         open: issue.openOnDate @_date
         technicalDebt: issue.technicalDebtOnDate @_date
         resolvedDays: issue.resolvedDays @_date
+        openedToday: issue.openedOnDate @_date
+        closedToday: issue.closedOnDate @_date
         leadTime: issue.leadTime
         cycleTime: issue.cycleTime
         deferredTime: issue.deferredTime

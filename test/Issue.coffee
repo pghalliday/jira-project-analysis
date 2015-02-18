@@ -218,6 +218,20 @@ describe 'Issue', ->
         date = moment '2015-01-22T11:19:48.633+0000'
         @issue.openOnDate(date).should.be.true
 
+    describe '#openedOnDate', ->
+      it 'should return true if date is the day created', ->
+        date = moment '2015-01-20T12:19:48.633+0000'
+        @issue.openedOnDate(date).should.be.true
+
+      it 'should return false if date is not the day created', ->
+        date = moment '2015-01-21T12:19:48.633+0000'
+        @issue.openedOnDate(date).should.be.false
+
+    describe '#closedOnDate', ->
+      it 'should return false if issue is not done', ->
+        date = moment '2015-01-20T12:19:48.633+0000'
+        @issue.closedOnDate(date).should.be.false
+
     describe '#technicalDebtOnDate', ->
       it 'should return 0 if date is before created', ->
         date = moment '2015-01-19T11:19:48.633+0000'
@@ -358,6 +372,15 @@ describe 'Issue', ->
       it 'should return false if date is after done', ->
         date = moment '2015-01-27T11:19:48.633+0000'
         @issue.openOnDate(date).should.be.false
+
+    describe '#closedOnDate', ->
+      it 'should return true if date is on the closed day', ->
+        date = moment '2015-01-26T12:19:48.633+0000'
+        @issue.closedOnDate(date).should.be.true
+
+      it 'should return false if date is not on the closed day', ->
+        date = moment '2015-01-25T12:19:48.633+0000'
+        @issue.closedOnDate(date).should.be.false
 
     describe '#technicalDebtOnDate', ->
       it 'should return 0 if date is after done', ->

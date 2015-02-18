@@ -52,6 +52,26 @@ describe 'Day', ->
       'component.component1.technicalDebt'
       'component.component2.technicalDebt'
       'component.component3.technicalDebt'
+      'opened'
+      'type.bug.opened'
+      'type.story.opened'
+      'type.subtask.opened'
+      'priority.unprioritized.opened'
+      'priority.p1.opened'
+      'priority.p2.opened'
+      'component.component1.opened'
+      'component.component2.opened'
+      'component.component3.opened'
+      'closed'
+      'type.bug.closed'
+      'type.story.closed'
+      'type.subtask.closed'
+      'priority.unprioritized.closed'
+      'priority.p1.closed'
+      'priority.p2.closed'
+      'component.component1.closed'
+      'component.component2.closed'
+      'component.component3.closed'
       'leadTimeMA7'
       'type.bug.leadTimeMA7'
       'type.story.leadTimeMA7'
@@ -111,6 +131,30 @@ describe 'Day', ->
     @day['component.component2.technicalDebt'].should.equal 0
     @day['component.component3.technicalDebt'].should.equal 0
 
+  it 'should initialise opened on day count', ->
+    @day.opened.should.equal 0
+    @day['type.bug.opened'].should.equal 0
+    @day['type.story.opened'].should.equal 0
+    @day['type.subtask.opened'].should.equal 0
+    @day['priority.unprioritized.opened'].should.equal 0
+    @day['priority.p1.opened'].should.equal 0
+    @day['priority.p2.opened'].should.equal 0
+    @day['component.component1.opened'].should.equal 0
+    @day['component.component2.opened'].should.equal 0
+    @day['component.component3.opened'].should.equal 0
+
+  it 'should initialise closed on day count', ->
+    @day.closed.should.equal 0
+    @day['type.bug.closed'].should.equal 0
+    @day['type.story.closed'].should.equal 0
+    @day['type.subtask.closed'].should.equal 0
+    @day['priority.unprioritized.closed'].should.equal 0
+    @day['priority.p1.closed'].should.equal 0
+    @day['priority.p2.closed'].should.equal 0
+    @day['component.component1.closed'].should.equal 0
+    @day['component.component2.closed'].should.equal 0
+    @day['component.component3.closed'].should.equal 0
+
   it 'should initialise lead time 7 day moving average', ->
     expect(@day.leadTimeMA7).to.be.null
     expect(@day['type.bug.leadTimeMA7']).to.be.null
@@ -163,12 +207,18 @@ describe 'Day', ->
         deferredTime: 2
         resolvedDays: sinon.spy -> 6
         openOnDate: sinon.spy -> false
+        openedOnDate: sinon.spy -> false
+        closedOnDate: sinon.spy -> true
         technicalDebtOnDate: sinon.spy -> 0
       @day.addIssue @issue
 
     it 'should correctly query the issue', ->
       @issue.openOnDate.should.have.been.calledOnce
       @issue.openOnDate.should.have.been.calledWithExactly @now
+      @issue.openedOnDate.should.have.been.calledOnce
+      @issue.openedOnDate.should.have.been.calledWithExactly @now
+      @issue.closedOnDate.should.have.been.calledOnce
+      @issue.closedOnDate.should.have.been.calledWithExactly @now
       @issue.technicalDebtOnDate.should.have.been.calledOnce
       @issue.technicalDebtOnDate.should.have.been.calledWithExactly @now
       @issue.resolvedDays.should.have.been.calledOnce
@@ -197,6 +247,30 @@ describe 'Day', ->
       @day['component.component1.technicalDebt'].should.equal 0
       @day['component.component2.technicalDebt'].should.equal 0
       @day['component.component3.technicalDebt'].should.equal 0
+
+    it 'should correctly accumulate opened on day counts', ->
+      @day.opened.should.equal 0
+      @day['type.bug.opened'].should.equal 0
+      @day['type.story.opened'].should.equal 0
+      @day['type.subtask.opened'].should.equal 0
+      @day['priority.unprioritized.opened'].should.equal 0
+      @day['priority.p1.opened'].should.equal 0
+      @day['priority.p2.opened'].should.equal 0
+      @day['component.component1.opened'].should.equal 0
+      @day['component.component2.opened'].should.equal 0
+      @day['component.component3.opened'].should.equal 0
+
+    it 'should correctly accumulate closed on day counts', ->
+      @day.closed.should.equal 1
+      @day['type.bug.closed'].should.equal 1
+      @day['type.story.closed'].should.equal 0
+      @day['type.subtask.closed'].should.equal 0
+      @day['priority.unprioritized.closed'].should.equal 0
+      @day['priority.p1.closed'].should.equal 1
+      @day['priority.p2.closed'].should.equal 0
+      @day['component.component1.closed'].should.equal 1
+      @day['component.component2.closed'].should.equal 0
+      @day['component.component3.closed'].should.equal 1
 
     it 'should correctly accumulate lead time 7 day moving average', ->
       @day.leadTimeMA7.should.equal 5
@@ -248,6 +322,8 @@ describe 'Day', ->
           deferredTime: 2
           resolvedDays: -> 6
           openOnDate: -> false
+          openedOnDate: sinon.spy -> false
+          closedOnDate: sinon.spy -> false
           technicalDebtOnDate: -> 0
         @day.addIssue @issue
 
@@ -274,6 +350,30 @@ describe 'Day', ->
         @day['component.component1.technicalDebt'].should.equal 0
         @day['component.component2.technicalDebt'].should.equal 0
         @day['component.component3.technicalDebt'].should.equal 0
+
+      it 'should correctly accumulate opened on day counts', ->
+        @day.opened.should.equal 0
+        @day['type.bug.opened'].should.equal 0
+        @day['type.story.opened'].should.equal 0
+        @day['type.subtask.opened'].should.equal 0
+        @day['priority.unprioritized.opened'].should.equal 0
+        @day['priority.p1.opened'].should.equal 0
+        @day['priority.p2.opened'].should.equal 0
+        @day['component.component1.opened'].should.equal 0
+        @day['component.component2.opened'].should.equal 0
+        @day['component.component3.opened'].should.equal 0
+
+      it 'should correctly accumulate closed on day counts', ->
+        @day.closed.should.equal 1
+        @day['type.bug.closed'].should.equal 1
+        @day['type.story.closed'].should.equal 0
+        @day['type.subtask.closed'].should.equal 0
+        @day['priority.unprioritized.closed'].should.equal 0
+        @day['priority.p1.closed'].should.equal 1
+        @day['priority.p2.closed'].should.equal 0
+        @day['component.component1.closed'].should.equal 1
+        @day['component.component2.closed'].should.equal 0
+        @day['component.component3.closed'].should.equal 1
 
       it 'should correctly accumulate lead time 7 day moving average', ->
         @day.leadTimeMA7.should.equal 4
@@ -322,6 +422,8 @@ describe 'Day', ->
             ]
             resolvedDays: -> null
             openOnDate: -> false
+            openedOnDate: sinon.spy -> true
+            closedOnDate: sinon.spy -> false
             technicalDebtOnDate: -> 0
           @day.addIssue @issue
 
@@ -348,6 +450,30 @@ describe 'Day', ->
           @day['component.component1.technicalDebt'].should.equal 0
           @day['component.component2.technicalDebt'].should.equal 0
           @day['component.component3.technicalDebt'].should.equal 0
+
+        it 'should correctly accumulate opened on day counts', ->
+          @day.opened.should.equal 1
+          @day['type.bug.opened'].should.equal 1
+          @day['type.story.opened'].should.equal 0
+          @day['type.subtask.opened'].should.equal 0
+          @day['priority.unprioritized.opened'].should.equal 1
+          @day['priority.p1.opened'].should.equal 0
+          @day['priority.p2.opened'].should.equal 0
+          @day['component.component1.opened'].should.equal 1
+          @day['component.component2.opened'].should.equal 1
+          @day['component.component3.opened'].should.equal 0
+
+        it 'should correctly accumulate closed on day counts', ->
+          @day.closed.should.equal 1
+          @day['type.bug.closed'].should.equal 1
+          @day['type.story.closed'].should.equal 0
+          @day['type.subtask.closed'].should.equal 0
+          @day['priority.unprioritized.closed'].should.equal 0
+          @day['priority.p1.closed'].should.equal 1
+          @day['priority.p2.closed'].should.equal 0
+          @day['component.component1.closed'].should.equal 1
+          @day['component.component2.closed'].should.equal 0
+          @day['component.component3.closed'].should.equal 1
 
         it 'should correctly accumulate lead time 7 day moving average', ->
           @day.leadTimeMA7.should.equal 4
@@ -398,6 +524,8 @@ describe 'Day', ->
               ]
               resolvedDays: -> 7
               openOnDate: -> true
+              openedOnDate: sinon.spy -> false
+              closedOnDate: sinon.spy -> true
               technicalDebtOnDate: -> 6
             @day.addIssue @issue
 
@@ -424,6 +552,30 @@ describe 'Day', ->
             @day['component.component1.technicalDebt'].should.equal 6
             @day['component.component2.technicalDebt'].should.equal 6
             @day['component.component3.technicalDebt'].should.equal 0
+
+          it 'should correctly accumulate opened on day counts', ->
+            @day.opened.should.equal 1
+            @day['type.bug.opened'].should.equal 1
+            @day['type.story.opened'].should.equal 0
+            @day['type.subtask.opened'].should.equal 0
+            @day['priority.unprioritized.opened'].should.equal 1
+            @day['priority.p1.opened'].should.equal 0
+            @day['priority.p2.opened'].should.equal 0
+            @day['component.component1.opened'].should.equal 1
+            @day['component.component2.opened'].should.equal 1
+            @day['component.component3.opened'].should.equal 0
+
+          it 'should correctly accumulate closed on day counts', ->
+            @day.closed.should.equal 2
+            @day['type.bug.closed'].should.equal 2
+            @day['type.story.closed'].should.equal 0
+            @day['type.subtask.closed'].should.equal 1
+            @day['priority.unprioritized.closed'].should.equal 1
+            @day['priority.p1.closed'].should.equal 1
+            @day['priority.p2.closed'].should.equal 1
+            @day['component.component1.closed'].should.equal 2
+            @day['component.component2.closed'].should.equal 1
+            @day['component.component3.closed'].should.equal 1
 
           it 'should correctly accumulate lead time 7 day moving average', ->
             @day.leadTimeMA7.should.equal 4
@@ -474,6 +626,8 @@ describe 'Day', ->
                 ]
                 resolvedDays: -> 7
                 openOnDate: -> true
+                openedOnDate: sinon.spy -> true
+                closedOnDate: sinon.spy -> true
                 technicalDebtOnDate: -> 5
               @day.addIssue @issue
 
@@ -500,6 +654,30 @@ describe 'Day', ->
               @day['component.component1.technicalDebt'].should.equal 6
               @day['component.component2.technicalDebt'].should.equal 11
               @day['component.component3.technicalDebt'].should.equal 5
+
+            it 'should correctly accumulate opened on day counts', ->
+              @day.opened.should.equal 2
+              @day['type.bug.opened'].should.equal 2
+              @day['type.story.opened'].should.equal 0
+              @day['type.subtask.opened'].should.equal 0
+              @day['priority.unprioritized.opened'].should.equal 1
+              @day['priority.p1.opened'].should.equal 1
+              @day['priority.p2.opened'].should.equal 0
+              @day['component.component1.opened'].should.equal 1
+              @day['component.component2.opened'].should.equal 2
+              @day['component.component3.opened'].should.equal 1
+
+            it 'should correctly accumulate closed on day counts', ->
+              @day.closed.should.equal 3
+              @day['type.bug.closed'].should.equal 3
+              @day['type.story.closed'].should.equal 0
+              @day['type.subtask.closed'].should.equal 1
+              @day['priority.unprioritized.closed'].should.equal 1
+              @day['priority.p1.closed'].should.equal 2
+              @day['priority.p2.closed'].should.equal 1
+              @day['component.component1.closed'].should.equal 2
+              @day['component.component2.closed'].should.equal 2
+              @day['component.component3.closed'].should.equal 2
 
             it 'should correctly accumulate lead time 7 day moving average', ->
               @day.leadTimeMA7.should.equal 4

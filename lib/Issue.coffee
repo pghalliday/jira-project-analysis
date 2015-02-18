@@ -205,6 +205,15 @@ module.exports = (__statusMap, __userMap, __minimumTrustedCycleTime) ->
         else
           true
 
+    openedOnDate: (date) =>
+      date.isSame @_created, 'day'
+
+    closedOnDate: (date) =>
+      if @_closed
+        date.isSame @_closed, 'day'
+      else
+        false
+
     technicalDebtOnDate: (date) =>
       if @openOnDate date
         date.diff @_created, 'days', true
