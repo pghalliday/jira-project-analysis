@@ -1,6 +1,6 @@
 {
   "name": "jira-project-analysis",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "Export JIRA project data as csv for analysis",
   "scripts": {
     "lint": "coffeelint -f coffeelint.json test/**.coffee lib/**.coffee",
