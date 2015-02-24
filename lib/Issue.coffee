@@ -194,6 +194,7 @@ module.exports = (__statusMap, __userMap, __minimumTrustedCycleTime) ->
                 if lastClose
                   @cycleTime += close.date.diff lastClose.date, 'days', true
               lastClose = close
+          @cycleTime = @leadTime if @cycleTime > @leadTime
           @deferredTime = @leadTime - @cycleTime
 
     openOnDate: (date) =>

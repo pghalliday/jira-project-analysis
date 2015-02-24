@@ -26,6 +26,7 @@ describe 'Issue', ->
       developers: [
         'user1'
         'user2'
+        'user3'
       ]
       ignore: [
         'user0'
@@ -673,6 +674,20 @@ describe 'Issue', ->
         '2015-01-31T11:19:48.633+0000'
         'user0'
       )
+      @issue11 = new @Issue immediatelyClosedIssue(
+        'key-11'
+        '2015-01-20T11:19:48.633+0000'
+        '2015-01-25T11:19:48.633+0000'
+        '2015-01-31T11:19:48.633+0000'
+        'user3'
+      )
+      @issue12 = new @Issue immediatelyClosedIssue(
+        'key-12'
+        '2015-02-20T11:19:48.633+0000'
+        '2015-02-25T11:19:48.633+0000'
+        '2015-02-28T11:19:48.633+0000'
+        'user3'
+      )
 
 # coffeelint: disable=max_line_length
     it 'should not calculate a new cycle time if the closing user did not close an issue before it', ->
@@ -761,6 +776,15 @@ describe 'Issue', ->
       @issue10.cycleTime.should.equal 0
       @issue10.leadTime.should.equal 11
       @issue10.deferredTime.should.equal 11
+
+    it 'should not set a negative deferred time', ->
+      @issue12.cycleTime.should.equal 0
+      @issue12.leadTime.should.equal 8
+      @issue12.deferredTime.should.equal 8
+      @issue12.checkCycleTime()
+      @issue12.cycleTime.should.equal 8
+      @issue12.leadTime.should.equal 8
+      @issue12.deferredTime.should.equal 0
 
   describe 'accumulators', ->
     before ->
