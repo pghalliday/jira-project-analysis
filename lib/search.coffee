@@ -51,7 +51,7 @@ module.exports = (params) ->
     .then (total) ->
       params.onTotal total
       remaining = total
-      issuesPromise = ->
+      issuesPromise = (start, array) ->
         deferred = Q.defer()
         jsonStream = JSONStream.parse 'issues.*'
         reduceStream = reduce(
@@ -59,18 +59,21 @@ module.exports = (params) ->
           []
         )
         reduceStream.once 'data', (issues) ->
-          deferred.resolve issues
+          deferred.resolve array.concat issues
         query = request(
           queryParams(
-            total - remaining
+            start
             params.maxResults
             params.fields
             params.expand
           )
         )
-        remaining -= params.maxResults
         query.pipe(jsonStream).pipe(reduceStream)
         deferred.promise
-      Q.all (issuesPromise() while remaining > 0)
-    .then (issuesArrays) ->
-      _.flatten issuesArrays, true
+      issuesPromiseCalls = while remaining > 0
+        start = total - remaining
+        remaining -= params.maxResults
+        issuesPromise.bind null, start
+      issuesPromiseCalls.reduce((soFar, f) ->
+        soFar.then(f)
+      , Q([]))
