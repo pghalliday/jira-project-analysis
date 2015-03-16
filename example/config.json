@@ -1,10 +1,5 @@
 {
-  "output": {
-    "days": "./jira-days.csv",
-    "issues": "./jira-issues.csv"
-  },
-  "numberOfDays": 90,
-  "minimumTrustedCycleTime": 300,
+  "output": "./jira-issues.csv",
   "project": [
     "MyProject"
   ],
@@ -34,14 +29,6 @@
     ],
     "ignore": [
       "Parked"
-    ]
-  },
-  "userMap": {
-    "developers": [
-      "a.developer"
-    ],
-    "ignore": [
-      "a.manager"
     ]
   },
   "jira": {

@@ -7,7 +7,6 @@ Progress = require 'progress'
 _ = require 'underscore'
 moment = require 'moment'
 search = require './search'
-dayClass = require './Day'
 issueClass = require './Issue'
 
 jqlExcludeValueList = (values) ->
@@ -33,6 +32,9 @@ jqlFields = [
   'labels'
   'components'
   'parent'
+  'summary'
+  'description'
+  'comment'
 ].join ','
 
 progressBarFormat = (action) ->
@@ -60,14 +62,10 @@ Q()
     bar = undefined
     Issue = issueClass(
       config.statusMap
-      config.userMap
-      config.minimumTrustedCycleTime
     )
     [
       Issue
-      config.numberOfDays
-      path.resolve(outputDir, config.output.days)
-      path.resolve(outputDir, config.output.issues)
+      path.resolve(outputDir, config.output)
       search
         serverRoot: jira.protocol + '://' + jira.host
         strictSSL: jira.strictSSL
@@ -88,44 +86,20 @@ Q()
           bar.tick()
           new Issue issue
     ]
-  .spread (Issue, numberOfDays, outputDays, outputIssues, issues) ->
-    if Issue.unknownUsers.length
-      console.log 'WARNING: Unknown users'
-      console.log JSON.stringify Issue.unknownUsers, null, '  '
+  .spread (Issue, output, issues) ->
     if Issue.unknownStatuses.length
       console.log 'WARNING: Unknown statuses'
       console.log JSON.stringify Issue.unknownStatuses, null, '  '
-    Day = dayClass Issue
-    days = (
-      new Day(
-        moment().subtract(day, 'days')
-      ) for day in [(numberOfDays - 1)..0]
-    )
-    bar = new Progress progressBarFormat('processing'),
-      total: issues.length
-      complete: '='
-      incomplete: ' '
-      width: 20
-    bar.tick 0
-    for issue in issues
-      bar.tick()
-      issue.checkCycleTime()
-      (day.addIssue issue) for day in days
-    [outputDays, outputIssues].concat [
-      Q.nfcall stringify, days,
-        header: true
-        columns: Day.columns
+    [output].concat [
       Q.nfcall stringify, issues,
         header: true
         columns: Issue.columns
     ]
-  .spread (outputDays, outputIssues, csvDays, csvIssues) ->
-    [outputDays, outputIssues].concat [
-      fs.write outputDays, csvDays
-      fs.write outputIssues, csvIssues
+  .spread (output, csv) ->
+    [output].concat [
+      fs.write output, csv
     ]
-  .spread (outputDays, outputIssues) ->
+  .spread (output) ->
     console.log '\n  CSV data written to:'
-    console.log '\n    ' + outputDays
-    console.log '\n    ' + outputIssues + '\n'
+    console.log '\n    ' + output + '\n'
   .done()
