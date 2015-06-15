@@ -6,7 +6,7 @@ stringify = require 'csv-stringify'
 Progress = require 'progress'
 _ = require 'underscore'
 moment = require 'moment'
-search = require './search'
+search = require 'jira-search'
 dayClass = require './Day'
 issueClass = require './Issue'
 
